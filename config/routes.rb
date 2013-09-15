@@ -9,6 +9,15 @@ Weava::Application.routes.draw do
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'
 
+  # Auth
+  get 'auth/login' => 'auth#login'
+  post 'auth/authenticate' => 'auth#authenticate'
+
+  # Users
+  get '/profile' => 'users#profile' 
+  get '/register' => 'users#register'
+  post '/create' => 'users#create'
+
   # Example of named route that can be invoked with purchase_url(id: product.id)
   #   get 'products/:id/purchase' => 'catalog#purchase', as: :purchase
 

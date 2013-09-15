@@ -1,0 +1,19 @@
+<h1>Register for a Weava Account</h1>
+
+<%= form_tag({ :controller => 'users', :action => 'create'}, :method => 'post', :role => 'form', :class => 'form-register') do %>
+	<div class="form-group">
+		<%= label_tag(:email, "Email") %>
+		<div class="input-group">
+			<span class="input-group-addon"><i class="icon-envelope"></i></span>
+			<%= email_field_tag :email, nil, :class => 'form-control', :placeholder => 'Email' %>
+		</div>
+	</div>
+	<div class="form-group">
+		<%= label_tag :password %>
+		<div class="input-group">
+			<span class="input-group-addon"><i class="icon-lock"></i></span>
+			<%= password_field_tag :password, nil, :class => 'form-control', :placeholder => 'Password' %>
+		</div>
+	</div>
+	<%= submit_tag("Register", :class => 'btn btn-primary') %>
+<% end %>
