@@ -12,8 +12,16 @@
  *= require_tree .
  *= require twitter
  *= require font-awesome/css/font-awesome
+ *= require persona-buttons
  */
 
 body {
-  padding-top: 50px;
+  /*padding-top: 50px;*/
+}
+
+.navbar-brand.navbar-brand-weava {
+    padding: 5px 15px;
+    img {
+        height: 30px;
+    }
 }

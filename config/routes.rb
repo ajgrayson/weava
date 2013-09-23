@@ -10,13 +10,23 @@ Weava::Application.routes.draw do
   #   get 'products/:id' => 'catalog#view'
 
   # Auth
-  get 'auth/login' => 'auth#login'
+  get 'login' => 'auth#login'
+  get 'logout' => 'auth#logout'
+  post 'auth/logout' => 'auth#logout'
   post 'auth/authenticate' => 'auth#authenticate'
-
+  
   # Users
-  get '/profile' => 'users#profile' 
-  get '/register' => 'users#register'
-  post '/create' => 'users#create'
+  # get '/users/show/:id' => 'users#show' 
+  # get '/users/new' => 'users#new'
+  # post '/users/create' => 'users#create'
+  # get '/users/edit/:id', :to => 'users#edit'
+  # post '/users/update/:id' => 'users#update'
+
+  get 'profile' => 'users#show'
+  
+  Weava::Application.routes.draw do
+     resources :users
+  end
 
   # Example of named route that can be invoked with purchase_url(id: product.id)
   #   get 'products/:id/purchase' => 'catalog#purchase', as: :purchase
@@ -24,9 +34,9 @@ Weava::Application.routes.draw do
   # Example resource route (maps HTTP verbs to controller actions automatically):
   #   resources :products
 
-  Weava::Application.routes.draw do
-    resources :users
-  end
+  # Weava::Application.routes.draw do
+  #   resources :users
+  # end
 
   # Example resource route with options:
   #   resources :products do

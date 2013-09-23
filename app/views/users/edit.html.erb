@@ -1,0 +1,34 @@
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Edit Profile</h3>
+    <div class="clearfix"></div>
+  </div>
+  <div class="panel-body">
+    
+  	<%= form_for :user, url: user_path(@user.id), method: :patch, html: {class:'form-register'} do |f| %>
+		<% if @user.errors.any? %>
+			<div class="alert alert-danger">
+			  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+			  <div><strong>Errors!</strong></div>
+			  <div>
+			  	<ul>
+					<% @user.errors.full_messages.each do |msg| %>
+						<li><%= msg %></li>
+					<% end %>
+				</ul>
+			  </div>
+			</div>
+		<% end %>
+		
+		<div class="form-group">
+			<div class="input-group">
+				<span class="input-group-addon"><i class="icon-user"></i></span>
+				<%= f.text_field :name, :class => 'form-control', :placeholder => 'Full Name' %>
+			</div>
+		</div>
+
+		<%= submit_tag("Save", :class => 'btn btn-primary') %>
+	<% end %>
+
+  </div>
+</div>

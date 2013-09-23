@@ -26,4 +26,7 @@ Weava::Application.configure do
   # This option may cause significant delays in view rendering with a large
   # number of complex assets.
   config.assets.debug = true
+
+  # Persona
+  config.persona_url = 'http://0.0.0.0:3000'
 end

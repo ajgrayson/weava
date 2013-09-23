@@ -1,0 +1,11 @@
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="pull-left panel-title">Profile</h3>
+    <%= link_to 'Edit', edit_user_path(@user), :class => "pull-right" %>
+    <div class="clearfix"></div>
+  </div>
+  <div class="panel-body">
+    <p><strong>Name:</strong> <%= @user.name ? @user.name : 'n/a' %></p>
+    <p><strong>Email:</strong> <%= @user.email %></p>
+  </div>
+</div>

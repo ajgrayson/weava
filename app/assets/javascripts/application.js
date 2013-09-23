@@ -13,4 +13,6 @@
 
 //= require jquery
 //= require twitter
+//= require all
+//= require persona
 //= require_tree .

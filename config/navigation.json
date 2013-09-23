@@ -1,0 +1,27 @@
+{
+    "main": [
+        {
+            "text": "Home",
+            "path": "/",
+            "anonymous": true
+        }
+    ],
+    "user": [
+        {
+            "text": "Profile",
+            "path": "/profile",
+            "icon": "user"
+        },
+        {
+            "text": "Login",
+            "path": "/login",
+            "anonymous_only": true,
+            "icon": "lock"
+        },
+        {
+            "text": "Logout",
+            "id": "signout",
+            "path": "javascript:void(0)"
+        }
+    ]
+}
