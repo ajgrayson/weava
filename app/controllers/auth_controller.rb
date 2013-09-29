@@ -30,6 +30,8 @@ class AuthController < ApplicationController
             data = "audience=#{audience}&assertion=#{assertion}"
             resp = http.post("/verify", data, headers)
             
+            # debugger
+
             res = JSON.parse(resp.body())
 
             # Did the verifier respond?

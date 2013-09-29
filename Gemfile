@@ -8,6 +8,9 @@ gem 'rails', '4.0.0'
 # Use sqlite3 as the database for Active Record
 gem 'pg'
 
+# LibGit2
+gem 'rugged', git: 'git://github.com/libgit2/rugged.git', branch: 'development', submodules: true
+
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 4.0.0'
 
@@ -51,6 +54,8 @@ end
 
 # Use Capistrano for deployment
 # gem 'capistrano', group: :development
+
+gem 'thin'
 
 # Use debugger
 gem 'debugger', group: [:development, :test]

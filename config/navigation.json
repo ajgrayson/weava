@@ -4,6 +4,10 @@
             "text": "Home",
             "path": "/",
             "anonymous": true
+        },
+        {
+            "text": "Projects",
+            "path": "/projects"
         }
     ],
     "user": [

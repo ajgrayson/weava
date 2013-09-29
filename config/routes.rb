@@ -28,6 +28,14 @@ Weava::Application.routes.draw do
      resources :users
   end
 
+  get 'projects' => 'projects#index'
+  get 'projects/:id/newfile' => 'projects#newfile'
+  post 'projects/:id/createfile' => 'projects#createfile'
+  
+  Weava::Application.routes.draw do
+    resources :projects
+  end
+
   # Example of named route that can be invoked with purchase_url(id: product.id)
   #   get 'products/:id/purchase' => 'catalog#purchase', as: :purchase
 

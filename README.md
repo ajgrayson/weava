@@ -9,3 +9,5 @@ $ rake db:migrate # creates all the tables
 
 $ rails server # starts the app
 $ rails server --debugger # starts the app with debugging enabled
+
+Make sure Postgres is running first

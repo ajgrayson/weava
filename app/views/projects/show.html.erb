@@ -1,0 +1,15 @@
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title pull-left"><%= @project.name %></h3>
+    <%= link_to '+ Add File', '/projects/' + @project.id.to_s + '/newfile', :class => "pull-right" %>
+    <%= link_to 'Edit', edit_project_path(@project), :class => "pull-right" %>
+    <div class="clearfix"></div>
+  </div>
+  <div class="panel-body">
+  <%= @tree.each do |item| %>
+
+    <p><%= item[:name] %></p>
+
+  <% end %>
+  </div>
+</div>

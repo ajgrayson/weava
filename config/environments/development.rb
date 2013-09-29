@@ -28,5 +28,9 @@ Weava::Application.configure do
   config.assets.debug = true
 
   # Persona
-  config.persona_url = 'http://0.0.0.0:3000'
+  config.persona_url = 'http://localhost:3000'
+
+  # git
+  config.git_root_path = '/Users/johnathangrayson/Development/weava-git-repos/'
+
 end

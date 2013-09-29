@@ -1,0 +1,30 @@
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Edit Project</h3>
+  </div>
+  <div class="panel-body">
+  <%= form_for :project, url: project_path(@project.id), method: :patch do |f| %>
+
+    <div class="form-group">
+        <%= f.label :name %>
+        <%= f.text_field :name, :class => 'form-control' %>
+    </div>
+
+    <div class="form-group">
+        <%= f.label :path %>
+        <%= @project.path %>
+    </div>
+
+    <div class="form-group">
+        <div class="pull-left">
+            <%= f.submit 'Save', :class => 'btn btn-primary' %>
+            <%= link_to 'Cancel', projects_path, :class => 'btn' %>
+        </div>
+        <div class="pull-right">
+            <%= f.submit 'Delete', :class => 'btn btn-danger' %>
+        </div>
+    </div>  
+    
+  <% end %>
+  </div>
+</div>
