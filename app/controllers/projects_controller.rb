@@ -15,10 +15,16 @@ class ProjectsController < ApplicationController
         path = @project.path
 
         repo = Rugged::Repository.new(path)
-        
-        commit = repo.lookup(repo.head.target)
 
-        @tree = commit.tree
+        if !repo.empty?
+            commit = repo.lookup(repo.head.target)
+            @tree = commit.tree
+
+            @walker = Rugged::Walker.new(repo)
+            @walker.sorting(Rugged::SORT_TOPO | Rugged::SORT_REVERSE)
+            @walker.push(repo.head.target)
+
+        end
 
     end
 
@@ -87,15 +93,20 @@ class ProjectsController < ApplicationController
 
         user = User.find_by_id(project.user_id)
 
+        # get the repo
         repo = Rugged::Repository.new(path)
 
+        # write the content
         oid = repo.write(content, :blob)
-        index = Rugged::Index.new
+
+        index = repo.index
+
         index.add(:path => filename + ".txt", :oid => oid, :mode => 0100644)
+
+        index.write
 
         options = {}
         options[:tree] = index.write_tree(repo)
-
         options[:author] = { :email => user.email, :name => user.name, :time => Time.now }
         options[:committer] = { :email => user.email, :name => user.name, :time => Time.now }
         options[:message] ||= "Creating new file"
@@ -105,6 +116,71 @@ class ProjectsController < ApplicationController
         Rugged::Commit.create(repo, options)
 
         redirect_to :project
+    end
+
+    def editfile
+
+        id = params[:id]
+        oid = params[:oid]
+
+        @project = Project.find_by_id(params[:id])
+
+        path = @project.path
+
+        repo = Rugged::Repository.new(path)
+
+        commit = repo.lookup(repo.head.target)
+        tree = commit.tree
+
+        @file = tree.get_entry_by_oid(oid)
+        @blob = Rugged::Blob.lookup(repo, @file[:oid])
+
+    end
+
+    def updatefile
+
+        id = params[:id]
+        oid = params[:oid]
+
+        project = Project.find_by_id(id)
+
+        path = project.path
+
+        content = params[:content]
+
+        user = User.find_by_id(project.user_id)
+
+        # get the repo
+        repo = Rugged::Repository.new(path)
+
+        # write the content
+        new_oid = repo.write(content, :blob)
+
+
+        commit = repo.lookup(repo.head.target)
+        tree = commit.tree
+
+        file = tree.get_entry_by_oid(oid)
+
+
+        index = repo.index
+
+        index.add(:path => file[:name], :oid => new_oid, :mode => 0100644)
+
+        index.write
+
+        options = {}
+        options[:tree] = index.write_tree(repo)
+        options[:author] = { :email => user.email, :name => user.name, :time => Time.now }
+        options[:committer] = { :email => user.email, :name => user.name, :time => Time.now }
+        options[:message] ||= "Updating " + file[:name]
+        options[:parents] = repo.empty? ? [] : [ repo.head.target ].compact
+        options[:update_ref] = 'HEAD'
+
+        Rugged::Commit.create(repo, options)
+
+        redirect_to :project
+
     end
 
 end

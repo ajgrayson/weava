@@ -31,7 +31,9 @@ Weava::Application.routes.draw do
   get 'projects' => 'projects#index'
   get 'projects/:id/newfile' => 'projects#newfile'
   post 'projects/:id/createfile' => 'projects#createfile'
-  
+  get 'projects/:id/editfile/:oid' => 'projects#editfile'
+  post 'projects/:id/updatefile/:oid' => 'projects#updatefile'
+
   Weava::Application.routes.draw do
     resources :projects
   end

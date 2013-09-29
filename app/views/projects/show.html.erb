@@ -1,15 +1,61 @@
+<h2>Project <%= @project.name %> [<%= link_to 'Edit', edit_project_path(@project) %>]</h2>
+
 <div class="panel panel-default">
   <div class="panel-heading">
-    <h3 class="panel-title pull-left"><%= @project.name %></h3>
+    <h3 class="panel-title pull-left">Files</h3>
     <%= link_to '+ Add File', '/projects/' + @project.id.to_s + '/newfile', :class => "pull-right" %>
-    <%= link_to 'Edit', edit_project_path(@project), :class => "pull-right" %>
     <div class="clearfix"></div>
   </div>
   <div class="panel-body">
-  <%= @tree.each do |item| %>
+  <% if @tree %>
+    <table class="table">
+    <thead>
+    <tr>
+    <th>Filename</th>
+    <th>Author</th>
+    <th>Comment</th>
+    <th>Last Update</th>
+    </tr>
+    </thead>
+    <tbody>
+      <%= @tree.each do |item| %>
+      <tr>
+        <td><%= link_to item[:name], '/projects/' + @project.id.to_s + '/editfile/' + item[:oid] %></td>
+        <td><%= item[:author] %></td>
+        <td></td>
+        <td><%= item[:time] %></td>
+      </tr>
+      <% end %>
+      </tbody>
+      </table>
+   <% end %>
+  </div>
+</div>
 
-    <p><%= item[:name] %></p>
-
-  <% end %>
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">History</h3>
+  </div>
+  <div class="panel-body">
+  <% if @walker %>
+    <table class="table">
+    <thead>
+      <tr>
+        <th>Time</th>
+        <th>Author</th>
+        <th>Comment</th>
+      </tr>
+    </thead>
+    <tbody>
+      <%= @walker.each do |c| %>
+      <tr>
+        <td><%= c.time %></td>
+        <td><%= c.author[:name] %></td>
+        <td><%= c.message %></td>
+      </tr>
+      <% end %>
+      </tbody>
+      </table>
+   <% end %>
   </div>
 </div>
