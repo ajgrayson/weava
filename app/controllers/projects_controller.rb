@@ -21,7 +21,7 @@ class ProjectsController < ApplicationController
             @tree = commit.tree
 
             @walker = Rugged::Walker.new(repo)
-            @walker.sorting(Rugged::SORT_TOPO | Rugged::SORT_REVERSE)
+            @walker.sorting(Rugged::SORT_TOPO)
             @walker.push(repo.head.target)
 
         end
@@ -139,6 +139,7 @@ class ProjectsController < ApplicationController
 
     def updatefile
 
+        commit = params[:commit]
         id = params[:id]
         oid = params[:oid]
 
@@ -146,39 +147,68 @@ class ProjectsController < ApplicationController
 
         path = project.path
 
-        content = params[:content]
-
-        user = User.find_by_id(project.user_id)
-
         # get the repo
         repo = Rugged::Repository.new(path)
 
-        # write the content
-        new_oid = repo.write(content, :blob)
+        user = User.find_by_id(project.user_id)
+
+        if commit == 'Save'
+            
+            content = params[:content]
+
+            # write the content
+            new_oid = repo.write(content, :blob)
 
 
-        commit = repo.lookup(repo.head.target)
-        tree = commit.tree
+            commit = repo.lookup(repo.head.target)
+            tree = commit.tree
 
-        file = tree.get_entry_by_oid(oid)
+            file = tree.get_entry_by_oid(oid)
 
 
-        index = repo.index
+            index = repo.index
 
-        index.add(:path => file[:name], :oid => new_oid, :mode => 0100644)
+            index.add(:path => file[:name], :oid => new_oid, :mode => 0100644)
 
-        index.write
+            index.write
 
-        options = {}
-        options[:tree] = index.write_tree(repo)
-        options[:author] = { :email => user.email, :name => user.name, :time => Time.now }
-        options[:committer] = { :email => user.email, :name => user.name, :time => Time.now }
-        options[:message] ||= "Updating " + file[:name]
-        options[:parents] = repo.empty? ? [] : [ repo.head.target ].compact
-        options[:update_ref] = 'HEAD'
+            options = {}
+            options[:tree] = index.write_tree(repo)
+            options[:author] = { :email => user.email, :name => user.name, :time => Time.now }
+            options[:committer] = { :email => user.email, :name => user.name, :time => Time.now }
+            options[:message] ||= "Updating " + file[:name]
+            options[:parents] = repo.empty? ? [] : [ repo.head.target ].compact
+            options[:update_ref] = 'HEAD'
 
-        Rugged::Commit.create(repo, options)
+            Rugged::Commit.create(repo, options)
 
+        else
+
+            if commit == 'Delete'
+
+                index = repo.index
+
+                commit = repo.lookup(repo.head.target)
+                tree = commit.tree
+
+                file = tree.get_entry_by_oid(oid)
+
+                index.remove(file[:name])
+
+                index.write
+
+                options = {}
+                options[:tree] = index.write_tree(repo)
+                options[:author] = { :email => user.email, :name => user.name, :time => Time.now }
+                options[:committer] = { :email => user.email, :name => user.name, :time => Time.now }
+                options[:message] ||= "Deleting " + file[:name]
+                options[:parents] = repo.empty? ? [] : [ repo.head.target ].compact
+                options[:update_ref] = 'HEAD'
+
+                Rugged::Commit.create(repo, options)
+            end
+
+        end
         redirect_to :project
 
     end

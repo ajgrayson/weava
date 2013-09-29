@@ -14,8 +14,13 @@
     </div>
 
     <div class="form-group">
+      <div class="pull-left">
         <%= submit_tag "Save", :class => 'btn btn-primary' %>
         <%= link_to "Cancel", project_path(@project), :class => 'btn' %>
+      </div>
+      <div class="pull-right">
+      <%= submit_tag "Delete", :class => 'btn btn-danger' %>
+      </div>
     </div>
 
     <% end %>
