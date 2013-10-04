@@ -1,59 +1,61 @@
-require 'bundler/capistrano'
-require 'sidekiq/capistrano'
-require 'capistrano/ext/multistage'
+set :application, "app"
+set :repository,  "git@github.com:ajgrayson/weava.git"
+set :branch, "master"
+set :keep_releases, 5
 
-set :stages, ['development']
-set :default_stage =, 'development'
 
-default_run_options[:pty] = true
+# Code Repository
+# =========
+set :scm, :git
+set :scm_verbose, true
+set :deploy_via, :remote_cache
+
+# Remote Server
+# =============
+set :use_sudo, false
 ssh_options[:forward_agent] = true
 
-set :application, 'weava'
-set :repo_url, 'git@github.com:ajgrayson/weava.git'
+# Bundler
+# -------
+require 'bundler/capistrano'
+set :bundle_flags, "--deployment --binstubs"
+set :bundle_without, [:test, :development, :deploy]
 
-# ask :branch, proc { `git rev-parse --abbrev-ref HEAD`.chomp }
+# Rbenv
+# -----
+default_run_options[:shell] = '/bin/bash --login'
 
-set :deploy_to, '/var/www/weava'
-set :branch, 'master'
-set :scm, :git
-set :scm_verbose, 'development'
+default_run_options[:pty] = true
 
-set :format, :pretty
-set :log_level, :debug
-# set :pty, true
 
-set :use_sudo, true
-set :user, 'deploy'
+# Rails: Asset Pipeline
+# ---------------------
+load 'deploy/assets'
 
-# set :linked_files, %w{config/database.yml}
-# set :linked_dirs, %w{bin log tmp/pids tmp/cache tmp/sockets vendor/bundle public/system}
+# if you want to clean up old releases on each deploy uncomment this:
+after "deploy:restart", "deploy:cleanup"
 
-# set :default_env, { path: "/opt/ruby/bin:$PATH" }
-# set :keep_releases, 5
+# if you're still using the script/reaper helper you will need
+# these http://github.com/rails/irs_process_scripts
 
-after 'deploy:setup' do 
-  sudo "chown -R #{user} #{deploy_to} && chmod -R g+s #{deploy_to}"
-end
 
-namespace :deploy do
+# Server specific
+# ----------------
+set :user, "deploy"
+server "162.243.134.104", :web, :app, :db, :primary => true
+set :deploy_to, "/home/apps/#{application}"
+set :rails_env, "production"
 
-  desc 'Restart application'
-  task :restart do
-    on roles(:app), in: :sequence, wait: 5 do
-      # Your restart mechanism here, for example:
-      # execute :touch, release_path.join('tmp/restart.txt')
-    end
-  end
 
-  after :restart, :clear_cache do
-    on roles(:web), in: :groups, limit: 3, wait: 10 do
-      # Here we can do anything such as:
-      # within release_path do
-      #   execute :rake, 'cache:clear'
-      # end
-    end
-  end
-
-  after :finishing, 'deploy:cleanup'
-
-end
+# If you are using Passenger mod_rails uncomment this:
+ namespace :deploy do
+   task :start do
+    run "sudo sv up app"
+   end
+   task :stop do
+    run "sudo sv down app"
+   end
+   task :restart, :roles => :app, :except => { :no_release => true } do
+    run "sudo sv restart app"
+   end
+ end

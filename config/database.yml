@@ -26,7 +26,7 @@ test:
 production:
   adapter: postgresql
   encoding: unicode
-  database: 'weava-prod'
+  database: 'app_production'
   username: 
   password:
   pool: 5
