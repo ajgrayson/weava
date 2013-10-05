@@ -9,11 +9,30 @@ class ApplicationController < ActionController::Base
   # and make exceptions for what they can access
   before_action :verify_logged_in
   def verify_logged_in
-    get_current_user()
-    if not @current_user
-        if not ['/login', '/', '/auth/authenticate'].include? request.path
-            redirect_to '/login'
+    beta = cookies[:beta]
+    user = get_current_user()
+    
+    if beta and not user
+
+      # this sends someone who had previously used a beta access
+      # code right to the signin page but still lets them view the
+      # home page if they want to. Also leaves the authenticate open.
+      if not ['/', '/login', '/auth/authenticate'].include? request.path
+        redirect_to '/login'
+      end
+      
+    else 
+
+      # this is for people without a beta code and prevents them from doing
+      # anything other than view the home page and submit their access code
+      if not user
+        if not ['/', '/access/WEAVABETA2013'].include? request.path
+          if !(beta and request.path == '/login')
+            redirect_to '/'
+          end
         end
+      end
+
     end
   end
 

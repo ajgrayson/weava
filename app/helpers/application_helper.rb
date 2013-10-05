@@ -1,5 +1,15 @@
 module ApplicationHelper
+
+    # Generates the navigation for the specified menu
+    # The menus are defined in the config/navigation.json
+    # 
+    # ACCESS RESTRICTIONS
+    # - anonymous_only => shown if user is not logged in but not if they beta_access_required
+    # - anonymous => shown regardless of whether the user is logged in or not
+    # - none => shown only if the user is logged in
     def generate_navigation(name)
+
+        # TODO: cache the navigation!!!
         file = File.read("config/navigation.json")
         json = JSON.parse(file)
         nav = json[name]
@@ -24,4 +34,5 @@ module ApplicationHelper
 
         return html.html_safe
     end
+
 end

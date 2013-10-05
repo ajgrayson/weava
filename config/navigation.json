@@ -17,15 +17,15 @@
             "icon": "user"
         },
         {
-            "text": "Login",
-            "path": "/login",
-            "anonymous_only": true,
-            "icon": "lock"
-        },
-        {
             "text": "Logout",
             "id": "signout",
             "path": "javascript:void(0)"
         }
     ]
 }
+
+// ACCESS RESTRICTIONS
+// anonymous_only => shown if user is not logged in but not if they beta_access_required
+// anonymous => shown regardless of whether the user is logged in or not
+// none => shown only if the user is logged in
+

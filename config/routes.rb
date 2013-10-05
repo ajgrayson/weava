@@ -1,13 +1,12 @@
 Weava::Application.routes.draw do
-  # get "home/index"
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
-  # You can have the root of your site routed with "root"
+  # Site root
   root 'home#index'
 
-  # Example of regular route:
-  #   get 'products/:id' => 'catalog#view'
+  # Main
+  get 'access/:code' => 'home#access'
 
   # Auth
   get 'login' => 'auth#login'
@@ -16,27 +15,24 @@ Weava::Application.routes.draw do
   post 'auth/authenticate' => 'auth#authenticate'
   
   # Users
-  # get '/users/show/:id' => 'users#show' 
-  # get '/users/new' => 'users#new'
-  # post '/users/create' => 'users#create'
-  # get '/users/edit/:id', :to => 'users#edit'
-  # post '/users/update/:id' => 'users#update'
-
-  get 'profile' => 'users#show'
-  
   Weava::Application.routes.draw do
      resources :users
   end
 
+  # Users extras
+  get 'profile' => 'users#show'
+
+  # Projects
+  Weava::Application.routes.draw do
+    resources :projects
+  end
+
+  # Project files
   get 'projects' => 'projects#index'
   get 'projects/:id/newfile' => 'projects#newfile'
   post 'projects/:id/createfile' => 'projects#createfile'
   get 'projects/:id/editfile/:oid' => 'projects#editfile'
   post 'projects/:id/updatefile/:oid' => 'projects#updatefile'
-
-  Weava::Application.routes.draw do
-    resources :projects
-  end
 
   # Example of named route that can be invoked with purchase_url(id: product.id)
   #   get 'products/:id/purchase' => 'catalog#purchase', as: :purchase
