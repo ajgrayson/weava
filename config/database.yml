@@ -27,7 +27,7 @@ production:
   adapter: postgresql
   encoding: unicode
   database: 'weava-prod'
-  username: 'dbuser'
-  password: '0oiE1+P/JQbFDR'
+  username: 'postgres'
+  # password: '0oiE1+P/JQbFDR'
   pool: 5
   timeout: 5000
