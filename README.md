@@ -15,8 +15,8 @@ Make sure Postgres is running first
 
 Assuming that you have a server set up and configured just run
 
-    bundle exec cap deploy:setup
-    bundle exec cap deploy:migrations
+    $ bundle exec cap deploy:setup
+    $ bundle exec cap deploy:migrations
 
 Note:
 
