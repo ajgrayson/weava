@@ -45,6 +45,9 @@ class AuthController < ApplicationController
 
                     if !user.save
                         # oh bother... not again
+                    else
+                        # send mail to let us know a new one signed up
+                        LogMailer.newuser_email(user).deliver
                     end
                 else
                     user = users[0]

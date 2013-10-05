@@ -84,4 +84,13 @@ Weava::Application.configure do
   # git
   config.git_root_path = '/home/apps/user-repos/'
 
+  # action mailer
+  config.action_mailer.smtp_settings = {
+    :address => 'smtp.mailgun.org',
+    :user_name => 'postmaster@weava.mailgun.org',
+    :password => '05eazmku-k42',
+    :domain => 'weava.mailgun.org',
+    :authentication => :plain
+  }
+
 end
