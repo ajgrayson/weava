@@ -1,15 +1,13 @@
-weava
+Weava App
 =====
 
 ### Starting fresh on dev
 
-    ```
     $ rake db:create # creates the dev and test dbs
     $ rake db:migrate # creates all the tables
 
     $ rails server # starts the app
     $ rails server --debugger # starts the app with debugging enabled
-    ```
 
 Make sure Postgres is running first
 
@@ -17,12 +15,12 @@ Make sure Postgres is running first
 
 Assuming that you have a server set up and configured just run
 
-    ```
     bundle exec cap deploy:setup
     bundle exec cap deploy:migrations
-    ```
 
-deploy:setup - creates all the folders etc.
-deploy:migrations - deploys the app, runs migrations and starts it
+Note:
 
-See [https://github.com/teohm/kitchen-example]
+- deploy:setup - creates all the folders etc.
+- deploy:migrations - deploys the app, runs migrations and starts it
+
+See https://github.com/teohm/kitchen-example
