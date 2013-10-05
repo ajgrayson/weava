@@ -27,7 +27,7 @@ production:
   adapter: postgresql
   encoding: unicode
   database: 'app_production'
-  username: 
-  password:
+  username: 'apps'
+  password: 'apps'
   pool: 5
   timeout: 5000

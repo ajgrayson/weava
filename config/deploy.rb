@@ -42,7 +42,7 @@ after "deploy:restart", "deploy:cleanup"
 # Server specific
 # ----------------
 set :user, "deploy"
-server "162.243.134.104", :web, :app, :db, :primary => true
+server "app.weava.io", :web, :app, :db, :primary => true
 set :deploy_to, "/home/apps/#{application}"
 set :rails_env, "production"
 

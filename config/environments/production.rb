@@ -78,4 +78,10 @@ Weava::Application.configure do
   # Use default logging formatter so that PID and timestamp are not suppressed.
   config.log_formatter = ::Logger::Formatter.new
 
+  # Persona
+  config.persona_url = 'http://app.weava.io'
+
+  # git
+  config.git_root_path = '/home/apps/user-repos/'
+
 end
