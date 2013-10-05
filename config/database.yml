@@ -29,6 +29,6 @@ production:
   database: 'weava-prod'
   username: 'postgres'
   host: 'localhost'
-  # password: '0oiE1+P/JQbFDR'
+  password: 'superuser'
   pool: 5
   timeout: 5000
