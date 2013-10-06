@@ -24,3 +24,18 @@ Note:
 - deploy:migrations - deploys the app, runs migrations and starts it
 
 See https://github.com/teohm/kitchen-example
+
+### Doing Useful Stuff
+
+Creating migrations
+
+    $ rails generate migration MigrationName params
+    $ rake db:migrate
+
+Note
+
+    - MigrationName is the camel case that describes what this migration does e.g. AddSessionIdToUsers
+    - params is the changes you are making e.g. session_id:string
+    - If both of the above a specified then rails will generate a complete migration
+
+ 

@@ -7,11 +7,12 @@ class ApplicationController < ActionController::Base
 
   # we need to make sure the user is logged in by default
   # and make exceptions for what they can access
-  before_action :verify_logged_in, :verify_profile
+  before_action :authorize, :verify_profile
 
-  def verify_logged_in
+  def authorize
     beta = cookies[:beta]
-    user = get_current_user()
+    
+    user = current_user
     
     if beta and not user
 
@@ -38,7 +39,7 @@ class ApplicationController < ActionController::Base
   end
 
   def verify_profile
-    user = get_current_user()
+    user = current_user
     if user
       if not user.name and not ['/setup', '/save_setup', '/auth/logout'].include? request.path
         redirect_to '/setup'
@@ -46,18 +47,25 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  # loads the current user so its available in the views
+  # Helper to make @user available to views and helpers
   def current_user
-    get_current_user()
+    if not @user
+      get_current_user()
+    end
+    @user
   end
 
+  # loads the current user so its available in the views
   private 
     def get_current_user
-        if not @current_user
-          if cookies[:user_id]
-              @current_user = User.find_by_id(cookies[:user_id])
+        if not @user
+          if cookies[:sessid]
+              users = User.where("session_id = ?", cookies[:sessid])
+              if not users.empty?
+                @user = users[0]
+              end
           end
         end
-        return @current_user
+        @user
     end
 end

@@ -7,8 +7,8 @@
 	  <%= csrf_meta_tags %>
 
     <script type="text/javascript">
-    <% if current_user %>
-      var currentUser = '<%= current_user.email %>';
+    <% if @user %>
+      var currentUser = '<%= @user.email %>';
     <% else %>
       var currentUser = '';
     <% end %>
@@ -27,21 +27,10 @@
         </div>
         <div class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
-            <!-- <li class="active"><a href="/">Home</a></li> -->
-            
             <%= generate_navigation('main') %>
           </ul>
           <ul class="nav navbar-nav pull-right">
             <%= generate_navigation('user') %>
-
-            <!--
-            <% if current_user %>
-            <li><a href="/profile"><i class="icon-user"></i> Profile</a></li>
-            <li><a id="signout" href="javascript:void(0)">Logout</a></li>
-            <% else %>
-            <li><a href="/login"><i class="icon-lock"></i> Login</a></li>
-            <% end %>
-            -->
           </ul>
         </div>
       </div>

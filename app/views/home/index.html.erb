@@ -1,6 +1,6 @@
 <h1>Welcome to Weava</h1>
-<% if current_user %>
-<p>You're logged in as <%= current_user.email %></p>
+<% if @user %>
+<p>You're logged in as <%= @user.email %></p>
 <% else %>
 <p>
 Where not quite ready to show you what we're building but leave your email and we'll get in touch with you as soon as we're live.

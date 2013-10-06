@@ -3,6 +3,7 @@ class LogMailer < ActionMailer::Base
 
   def newuser_email(user) 
     @user = user
-    mail(to: 'ajgrayson+weavalogs@gmail.com', subject: '[Weava] New User Signed In')
+    @env = Rails.env.production? ? "PROD" : "DEV"
+    mail(to: "ajgrayson+weavalogs@gmail.com", subject: "[Weava " + @env + "] New User Signed In")
   end
 end

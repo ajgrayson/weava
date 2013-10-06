@@ -1,5 +1,6 @@
 require "net/http"
 require "uri"
+require "securerandom"
 
 class AuthController < ApplicationController
 
@@ -8,7 +9,7 @@ class AuthController < ApplicationController
 	end
 	
     def logout
-        cookies.delete :user_id
+        cookies.delete :sessid
         render text: 'ok'
     end
 
@@ -36,10 +37,8 @@ class AuthController < ApplicationController
 
             # Did the verifier respond?
             if res['status'] == 'okay'
-                # cookies[:email] = res['email']
 
                 users = User.where("email = ?", res['email'])
-                
                 if users.empty?
                     user = User.new(:email => res['email'])
 
@@ -47,15 +46,25 @@ class AuthController < ApplicationController
                         # oh bother... not again
                     else
                         # send mail to let us know a new one signed up
+                        # TODO put this somewhere async
                         LogMailer.newuser_email(user).deliver
                     end
                 else
                     user = users[0]
                 end
 
-                cookies[:user_id] = user.id
+                if user
+                    random_token = SecureRandom.urlsafe_base64(nil, false)
+                    user.update(:session_id => random_token)
 
-                render text: 'ok'
+                    user.save
+                    
+                    cookies[:sessid] = random_token
+
+                    render text: 'ok'
+                else
+                    render text: 'Server Error', status: :internal_server_error
+                end
             else
                 # Oops, something failed. Abort.
                 render text: 'Server Error', status: :internal_server_error

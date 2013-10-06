@@ -5,29 +5,33 @@
     <div class="clearfix"></div>
   </div>
   <div class="panel-body">
-  <% if @projects and @projects.length > 0 %>
-  <table class="table">
-  <thead>
-    <tr>
-    <th>Name</th>
-    <th>Path</th>
-    </tr>
-    </thead>
-    <tbody>
-    
-    <% @projects.each do |project| %>
-    <tr>
-        <td>
-            <%= link_to project.name, project_path(project) %>
-        </td>
-        <td>
-            <%= project.path %>
-        </td>
-    </tr>
-    <% end %>
 
-  </tbody>
-  </table>
+  <% if @projects and @projects.length > 0 %>
+
+    <table class="table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Path</th>
+      </tr>
+      </thead>
+      <tbody>
+      
+      <% @projects.each do |project| %>
+
+      <tr>
+          <td>
+              <%= link_to project.name, project_path(project) %>
+          </td>
+          <td>
+              <%= project.path %>
+          </td>
+      </tr>
+
+      <% end %>
+
+      </tbody>
+    </table>
 
   <% else %>
     <i>You don't have any projects yet</i>
