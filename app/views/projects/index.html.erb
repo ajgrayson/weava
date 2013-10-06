@@ -1,41 +1,28 @@
-<div class="panel panel-default">
+<!-- <div class="panel panel-default">
   <div class="panel-heading">
     <h3 class="pull-left panel-title">Projects</h3>
     <%= link_to 'New', new_project_path, :class => "pull-right" %>
     <div class="clearfix"></div>
   </div>
   <div class="panel-body">
+ -->
+ <h2>Projects</h1>
 
   <% if @projects and @projects.length > 0 %>
 
-    <table class="table">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Path</th>
-      </tr>
-      </thead>
-      <tbody>
-      
+      <div class="list-group">      
       <% @projects.each do |project| %>
 
-      <tr>
-          <td>
-              <%= link_to project.name, project_path(project) %>
-          </td>
-          <td>
-              <%= project.path %>
-          </td>
-      </tr>
+        <a href="<%= project_path(project) %>" class="list-group-item">
+          <h4 class="list-group-item-heading"><%= project.name %><i class="icon-chevron-right pull-right"></i><div class="clearfix"></div></h4>
+        </a>
 
-      <% end %>
-
-      </tbody>
-    </table>
+        <% end %>
+      </div>
 
   <% else %>
     <i>You don't have any projects yet</i>
   <% end %>
-
+<!-- 
   </div>
-</div>
+</div> -->
