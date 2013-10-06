@@ -28,16 +28,18 @@
       <% end %>
       </tbody>
       </table>
+   <% else %>
+    <i>You don't have any files yet</i>
    <% end %>
   </div>
 </div>
 
+<% if @walker %>
 <div class="panel panel-default">
   <div class="panel-heading">
     <h3 class="panel-title">History</h3>
   </div>
   <div class="panel-body">
-  <% if @walker %>
     <table class="table">
     <thead>
       <tr>
@@ -56,6 +58,6 @@
       <% end %>
       </tbody>
       </table>
-   <% end %>
   </div>
 </div>
+<% end %>

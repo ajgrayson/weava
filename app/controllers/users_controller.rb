@@ -37,12 +37,25 @@ class UsersController < ApplicationController
 	end
 
 	def update
-		@user = User.find(params[:id])
+		@user = User.find_by_id(params[:id])
 
 		if @user.update(params[:user].permit(:name))
 			redirect_to @user
 		else
 			render 'edit'
+		end
+	end
+
+	def setup
+		@user = User.find_by_id(cookies[:user_id])
+	end
+
+	def save_setup
+		user = User.find_by_id(params[:user][:id])
+		if user.update(params[:user].permit(:name))
+			redirect_to '/'
+		else
+			redirect_to 'setup'
 		end
 	end
 

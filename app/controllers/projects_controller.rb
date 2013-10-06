@@ -1,5 +1,3 @@
-# require 'rugged'
-
 class ProjectsController < ApplicationController
 
     def index

@@ -5,6 +5,7 @@
     <div class="clearfix"></div>
   </div>
   <div class="panel-body">
+  <% if @projects and @projects.length > 0 %>
   <table class="table">
   <thead>
     <tr>
@@ -13,7 +14,8 @@
     </tr>
     </thead>
     <tbody>
-  <% @projects.each do |project| %>
+    
+    <% @projects.each do |project| %>
     <tr>
         <td>
             <%= link_to project.name, project_path(project) %>
@@ -22,8 +24,14 @@
             <%= project.path %>
         </td>
     </tr>
-  <% end %>
+    <% end %>
+
   </tbody>
   </table>
+
+  <% else %>
+    <i>You don't have any projects yet</i>
+  <% end %>
+
   </div>
 </div>

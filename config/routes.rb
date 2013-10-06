@@ -21,6 +21,8 @@ Weava::Application.routes.draw do
 
   # Users extras
   get 'profile' => 'users#show'
+  get 'setup' => 'users#setup'
+  post 'save_setup' => 'users#save_setup'
 
   # Projects
   Weava::Application.routes.draw do
