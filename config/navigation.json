@@ -2,17 +2,20 @@
     "main": [
         {
             "text": "Home",
+            "match_exact": "/",
             "path": "/",
             "anonymous": true
         },
         {
             "text": "Projects",
+            "match": "/projects",
             "path": "/projects"
         }
     ],
     "user": [
         {
             "text": "Profile",
+            "match": ["/profile", "/users"],
             "path": "/profile",
             "icon": "user"
         },

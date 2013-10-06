@@ -9,16 +9,11 @@
         <%= f.label :name %>
         <%= f.text_field :name, :class => 'form-control' %>
     </div>
-
-    <div class="form-group">
-        <%= f.label :path %>
-        <%= @project.path %>
-    </div>
-
+    
     <div class="form-group">
         <div class="pull-left">
             <%= f.submit 'Save', :class => 'btn btn-primary' %>
-            <%= link_to 'Cancel', projects_path, :class => 'btn' %>
+            <%= link_to 'Cancel', project_path(@project), :class => 'btn' %>
         </div>
         <div class="pull-right">
             <%= f.submit 'Delete', :class => 'btn btn-danger' %>

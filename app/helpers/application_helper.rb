@@ -20,9 +20,27 @@ module ApplicationHelper
             id = item["id"]
             text = item["text"]
             icon = item["icon"]
+            match = item["match"]
+            match_exact = item["match_exact"]
+
             id_attribute = id ? "id=\"#{id}\"" : ""
             icon_html = icon ? "<i class=\"icon-#{icon}\"></i> " : ""
-            active = request.path == path ? "class=\"active\"" : ""
+            active = ""
+
+            if match
+                if match.kind_of?(Array)
+                    match.each do |mtc|
+                        if request.path.starts_with?(mtc)
+                            active = "class=\"active\""
+                            break
+                        end
+                    end
+                else
+                    active = request.path.starts_with?(match) ? "class=\"active\"" : ""
+                end
+            else # match_exact is default
+                active = request.path == path ? "class=\"active\"" : ""
+            end
 
             if (item["anonymous_only"] and not current_user) or (current_user and not item["anonymous_only"]) or (item["anonymous"])
                 html += "<li #{active}>"

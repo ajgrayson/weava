@@ -1,18 +1,30 @@
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <strong>Projects</strong>
+    <a href="<%= new_project_path %>" class="pull-right"><i class="icon-plus"></i> New</a>
+    <div class="clearfix"></div>
+  </div>
 
- <h2>Projects [<%= link_to 'New', new_project_path %>]</h1>
+    <% if @projects and @projects.length > 0 %>
 
-  <% if @projects and @projects.length > 0 %>
+      <div class="list-group">  
 
-      <div class="list-group">      
       <% @projects.each do |project| %>
 
         <a href="<%= project_path(project) %>" class="list-group-item">
-          <h4 class="list-group-item-heading"><%= project.name %><i class="icon-chevron-right pull-right"></i><div class="clearfix"></div></h4>
+          <i class="icon-briefcase"></i> <%= project.name %>
+          <i class="icon-chevron-right pull-right"></i>
+          <div class="clearfix"></div>
         </a>
 
         <% end %>
+        
       </div>
 
-  <% else %>
-    <i>You don't have any projects yet</i>
-  <% end %>
+    <% else %>
+    <div class="panel-body">
+      <i>You don't have any projects yet</i>
+    </div>
+    <% end %>
+
+</div>
