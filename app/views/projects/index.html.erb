@@ -1,12 +1,5 @@
-<!-- <div class="panel panel-default">
-  <div class="panel-heading">
-    <h3 class="pull-left panel-title">Projects</h3>
-    <%= link_to 'New', new_project_path, :class => "pull-right" %>
-    <div class="clearfix"></div>
-  </div>
-  <div class="panel-body">
- -->
- <h2>Projects</h1>
+
+ <h2>Projects [<%= link_to 'New', new_project_path %>]</h1>
 
   <% if @projects and @projects.length > 0 %>
 
@@ -23,6 +16,3 @@
   <% else %>
     <i>You don't have any projects yet</i>
   <% end %>
-<!-- 
-  </div>
-</div> -->
