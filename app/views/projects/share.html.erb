@@ -1,0 +1,29 @@
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Share Project</h3>
+  </div>
+  <div class="panel-body">
+    
+  <% if @error %>
+    <div class="alert alert-danger">
+      <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+      <%= @error %>
+    </div>
+  <% end %>
+
+  <%= form_tag :url => share_project_path(@project), :method => 'post' do %>
+
+    <div class="form-group">
+        <%= label_tag 'With' %>
+        <%= text_field_tag "email", "", :class => 'form-control', :placeholder => 'Email' %>
+    </div>
+
+    <div class="form-group">
+        <%= submit_tag 'Share', :class => 'btn btn-primary' %>
+        <%= link_to 'Cancel', project_path(@project), :class => 'btn' %>
+    </div>
+
+  <% end %> 
+
+  </div>
+</div>

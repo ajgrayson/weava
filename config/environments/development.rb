@@ -29,10 +29,11 @@ Weava::Application.configure do
 
   # Persona
   config.persona_url = 'http://localhost:3000'
+  config.base_url = 'http://localhost:3000'
 
   # git
   config.git_root_path = '/Users/johnathangrayson/Development/weava-git-repos/'
-  
+
   config.git_user_path = '/Users/johnathangrayson/Development/weava-git-user-repos/'
 
   # action mailer

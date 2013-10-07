@@ -7,19 +7,18 @@
       <%= csrf_meta_tags %>
 
     <script type="text/javascript">
-    <% if @user %>
-      var currentUser = '<%= @user.email %>';
-    <% else %>
-      var currentUser = '';
-    <% end %>
+      var currentUser = null;
+      <% if @user %>
+        currentUser = '<%= @user.email %>';
+      <% end %>
     </script>
   </head>
   <body>
 
     <div class="container">
 
-        <%= yield %>
-      
+      <%= yield %>
+    
     </div><!-- /.container -->
 
     <%= javascript_include_tag "application", "data-turbolinks-track" => true %>

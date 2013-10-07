@@ -1,7 +1,7 @@
 <div class="panel panel-default">
   <div class="panel-heading">
     <h3 class="panel-title pull-left"><%= @project.name %> Files</h3>
-    <a href="<%= '/projects/' + @project.id.to_s + '/newfile' %>" class="pull-right"><i class="icon-plus"></i> New</a>
+    <a href="<%= new_file_path(@project) %>" class="pull-right"><i class="icon-plus"></i> New</a>
     <div class="clearfix"></div>
   </div>
 
@@ -9,7 +9,7 @@
       <div class="list-group">  
       <%= @tree.each do |item| %>
 
-        <a href="<%= '/projects/' + @project.id.to_s + '/showfile/' + item[:oid].to_s %>" class="list-group-item">
+        <a href="<%= show_file_path(@project, item[:oid]) %>" class="list-group-item">
           <i class="icon-file-text-alt"></i> <%= item[:name] %>
           <i class="icon-chevron-right pull-right"></i>
           <div class="clearfix"></div>
@@ -51,4 +51,8 @@
 </div>
 <% end %>
 
-<%= link_to 'Edit Project', edit_project_path(@project), :class => 'btn btn-default' %>
+<%= link_to 'Edit', edit_project_path(@project), :class => 'btn btn-default' %>
+
+<% if @project.owner %>
+  <%= link_to 'Share', share_project_path(@project), :class => 'btn btn-default' %>
+<% end %>

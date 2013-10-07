@@ -80,10 +80,11 @@ Weava::Application.configure do
 
   # Persona
   config.persona_url = 'http://app.weava.io'
+  config.base_url = 'http://app.weava.io'
 
   # git
   config.git_root_path = '/home/apps/core-repos/'
-  
+
   config.git_user_path = '/home/apps/user-repos/'
 
   # action mailer

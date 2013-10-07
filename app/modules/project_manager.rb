@@ -2,14 +2,22 @@ require 'securerandom'
 
 module ProjectManager
 
-    def self.create_new_repo(path)
-        Rugged::Repository.init_at(path, :bare)
+    def self.create_new_repo(project)
+        # create upstream
+        upstream = Rugged::Repository.init_at(project.upstream_path, :bare)
+
+        # create user fork
+        clone_repo(project.upstream_path, project.path)
+    end
+
+    def self.clone_repo(orig_path, new_path)
+        Rugged::Repository.clone_at(orig_path, new_path)
     end
 
     def self.get_repo(path)
         Rugged::Repository.new(path)
     end
-
+    
     def self.create_file(repo, user, name, content)
         filename = sanitize_filename(name)
 
@@ -130,7 +138,7 @@ module ProjectManager
         end
         history
     end
-    
+
     def self.get_object(repo, oid) 
         Rugged::Object.lookup(repo, oid)
     end
