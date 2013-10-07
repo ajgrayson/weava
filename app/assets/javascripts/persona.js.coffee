@@ -20,20 +20,15 @@ $ ->
                 data:
                     assertion: assertion
                 success: () ->
-                    window.location = '/'
+                    window.location.reload()
                 error: (xhr, status, err) ->
                     navigator.id.logout()
-                    console.log('Login failure: ', err)
             
-            return null
         onlogout: () ->
             $.ajax
                 type: 'POST'
                 url: '/auth/logout'
                 success: () -> 
-                    window.location = '/'
-                error: (xhr, status, err) ->
-                    console.log('Logout failure: ', err)
+                    window.location.reload()
 
-            return null
     return this

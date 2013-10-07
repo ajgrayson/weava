@@ -1,3 +1,5 @@
+require 'securerandom'
+
 class ProjectsController < ApplicationController
     before_action :authorize_project
 
@@ -43,23 +45,88 @@ class ProjectsController < ApplicationController
 
         # redirect_to :projects
     end
-    
+
+    def share
+
+    end
+
+    def create_share
+        email = params[:email]
+
+        users = User.where("email = ?", email)
+        if not users.empty? 
+            user = users[0]
+
+            share = ProjectShare.new(
+                :project_id => @project.id, 
+                :owner_id => @user.id, 
+                :user_id => user.id, 
+                :code => SecureRandom.uuid)
+
+            share.save
+
+            LogMailer.share_project_email(@project, @user, user, share).deliver
+            
+            redirect_to project_path(@project), notice: 'Project shared with ' + email
+        else
+            @error = 'There are no users with email ' + email
+            render 'share'
+        end
+    end
+
+    def accept_share
+        share_code = params[:code]
+
+        if share_code
+            shares = ProjectShare.where("code = ?", share_code)
+            if not shares.empty?
+                share = shares[0]
+                if share.user_id == @user.id
+                    # we got a live one bob... what do we do?
+
+                    project = Project.find_by_id(share.project_id)
+
+                    if project
+                        new_project = Project.new(:name => project.name, :user_id => @user.id, :owner => false, :code => project.code)                        
+                        new_project.save
+
+                        ProjectManager.clone_repo(project.upstream_path, new_project.path)                        
+                    end
+
+                    redirect_to projects_path, notice: 'New Project Added'
+                else
+                    redirect_to projects_path, notice: 'Invalid share'
+                end
+            else
+                redirect_to projects_path, notice: 'Invalid share'
+            end
+        else
+            redirect_to projects_path, notice: 'Invalid share'
+        end
+    end
+
     # Creates a new project and sets up a git repo
     # TODO: make this async...
     def create
         name = params[:project][:name]
         
-        project = Project.new(:name => name, :user_id => @user.id)
-        
-        # Since its a new project so we need to tell it to init
-        # and generate the code and path fields
-        project.init()
-        
-        if project.save()
-            ProjectManager.create_new_repo(project.path)
+        existingProjects = Project.where('name = ?', name)
+        if existingProjects.empty?
+            project = Project.new(:name => name, :user_id => @user.id, :owner => true)
 
-            redirect_to :projects
+            # Since its a new project so we need to tell it to init
+            # and generate the code and path fields
+            project.init()
+
+            if project.save()
+                ProjectManager.create_new_repo(project)
+
+                redirect_to :projects
+            else
+                render 'new'
+            end
         else
+            # TODO: better feedback why this failed... async lookup??
             render 'new'
         end
     end
@@ -109,10 +176,12 @@ class ProjectsController < ApplicationController
         
         if commit == 'Save'            
             nid = ProjectManager.update_file(repo, @user, oid, content, message)
-            redirect_to '/projects/' + @project.id.to_s + '/showfile/' + nid.to_s
+
+            redirect_to show_file_path(@project, nid)
         elsif commit == 'Delete'
             ProjectManager.delete_file(repo, @user, oid, message)
-            redirect_to '/projects/' + @project.id.to_s
+
+            redirect_to project_path(@project)
         end
     end
 

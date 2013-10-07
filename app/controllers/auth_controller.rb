@@ -5,7 +5,9 @@ require "securerandom"
 class AuthController < ApplicationController
 
 	def login
-		# nothing to see here... carry on
+        if @user
+            redirect_to '/'
+        end 
 	end
 	
     def logout

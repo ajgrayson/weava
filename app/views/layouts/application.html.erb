@@ -7,11 +7,10 @@
 	  <%= csrf_meta_tags %>
 
     <script type="text/javascript">
-    <% if @user %>
-      var currentUser = '<%= @user.email %>';
-    <% else %>
-      var currentUser = '';
-    <% end %>
+      var currentUser = null;
+      <% if @user %>
+        currentUser = '<%= @user.email %>';
+      <% end %>
     </script>
   </head>
   <body>
@@ -37,6 +36,13 @@
     </div>
 
  	<div class="container">
+
+    <% if flash[:notice] %>
+      <div class="alert alert-info">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <%= flash[:notice] %>
+      </div>
+    <% end %>
 
  		<%= yield %>
       

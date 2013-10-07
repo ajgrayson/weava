@@ -37,6 +37,9 @@ Weava::Application.routes.draw do
   get 'projects/:id/showfile/:oid' => 'projects#showfile'
   get 'projects/:id/showfileversion/:oid' => 'projects#showfileversion'
   post 'projects/:id/updatefile/:oid' => 'projects#updatefile'
+  get 'projects/:id/share' => 'projects#share'
+  post 'projects/:id/share' => 'projects#create_share'
+  get 'projects/accept/:code' => 'projects#accept_share'
 
   # Example of named route that can be invoked with purchase_url(id: product.id)
   #   get 'products/:id/purchase' => 'catalog#purchase', as: :purchase

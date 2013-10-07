@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  </head>
+  <body>
+    <p>
+    <%= @sharing_user.name %> wants to share <%= @project.name %> with you.
+    </p>
+    <p>
+    To accept click the following link
+    </p>
+    <p>
+    <%= link_to 'Accept', @share_url %>
+    </p>
+  </body>
+</html>
