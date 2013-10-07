@@ -33,4 +33,21 @@ Weava::Application.configure do
 
   # Print deprecation notices to the stderr.
   config.active_support.deprecation = :stderr
+
+  config.persona_url = 'http:localhost:3000'
+  config.base_url = 'http:localhost:3000'
+
+  # git
+  config.git_root_path = '~/core-repos/'
+
+  config.git_user_path = '~/user-repos/'
+
+  # action mailer
+  config.action_mailer.smtp_settings = {
+    :address => 'smtp.mailgun.org',
+    :user_name => 'postmaster@weava.mailgun.org',
+    :password => '05eazmku-k42',
+    :domain => 'weava.mailgun.org',
+    :authentication => :plain
+  }
 end
