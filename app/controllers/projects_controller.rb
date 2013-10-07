@@ -177,7 +177,7 @@ class ProjectsController < ApplicationController
         if commit == 'Save'            
             nid = ProjectManager.update_file(repo, @user, oid, content, message)
 
-            redirect_to show_file_path(@project, nid)
+            redirect_to '/projects/' + @project.id.to_s + '/showfile/' + nid.to_s
         elsif commit == 'Delete'
             ProjectManager.delete_file(repo, @user, oid, message)
 
