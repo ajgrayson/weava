@@ -5,11 +5,11 @@
     <div class="clearfix"></div>
   </div>
 
-  <% if @tree %>
+  <% if @tree and @tree.length > 0 %>
       <div class="list-group">  
       <%= @tree.each do |item| %>
 
-        <a href="<%= '/projects/' + @project.id.to_s + '/editfile/' + item[:oid].to_s %>" class="list-group-item">
+        <a href="<%= '/projects/' + @project.id.to_s + '/showfile/' + item[:oid].to_s %>" class="list-group-item">
           <i class="icon-file-text-alt"></i> <%= item[:name] %>
           <i class="icon-chevron-right pull-right"></i>
           <div class="clearfix"></div>
@@ -35,7 +35,7 @@
     <tr>
       <th>Time</th>
       <th>Author</th>
-      <th>Comment</th>
+      <th>Message</th>
     </tr>
   </thead>
   <tbody>

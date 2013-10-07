@@ -5,7 +5,14 @@
     <div class="clearfix"></div>
   </div>
   <div class="panel-body">
-    <p><strong>Name:</strong> <%= @user.name ? @user.name : 'n/a' %></p>
-    <p><strong>Email:</strong> <%= @user.email %></p>
+    <div class="row">
+        <div class="col-md-3">
+            <img class="img-responsive" src="data:image/png;base64," data-src="holder.js/200x200/auto" alt="Profile image">
+        </div>
+        <div class="col-md-9">
+            <p><strong>Name:</strong> <%= @user.name ? @user.name : 'n/a' %></p>
+            <p><strong>Email:</strong> <%= @user.email %></p>
+        </div>
+    </div>
   </div>
 </div>

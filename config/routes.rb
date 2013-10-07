@@ -34,6 +34,8 @@ Weava::Application.routes.draw do
   get 'projects/:id/newfile' => 'projects#newfile'
   post 'projects/:id/createfile' => 'projects#createfile'
   get 'projects/:id/editfile/:oid' => 'projects#editfile'
+  get 'projects/:id/showfile/:oid' => 'projects#showfile'
+  get 'projects/:id/showfileversion/:oid' => 'projects#showfileversion'
   post 'projects/:id/updatefile/:oid' => 'projects#updatefile'
 
   # Example of named route that can be invoked with purchase_url(id: product.id)

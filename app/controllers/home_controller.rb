@@ -1,6 +1,8 @@
 class HomeController < ApplicationController
   def index
-    
+    if not @user
+      render :layout => 'anonymous_home_layout'
+    end
   end
 
   def access

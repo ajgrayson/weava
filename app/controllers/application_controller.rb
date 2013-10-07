@@ -11,7 +11,6 @@ class ApplicationController < ActionController::Base
 
   def authorize
     beta = cookies[:beta]
-    
     user = current_user
     
     if beta and not user

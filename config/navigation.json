@@ -1,10 +1,15 @@
 {
     "main": [
         {
-            "text": "Home",
+            "text": "Weava",
             "match_exact": "/",
             "path": "/",
-            "anonymous": true
+            "anonymous_only": true
+        },
+        {
+            "text": "Home",
+            "match_exact": "/",
+            "path": "/"
         },
         {
             "text": "Projects",

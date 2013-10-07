@@ -1,8 +1,8 @@
 class ProjectsController < ApplicationController
-    before_action :authorize
+    before_action :authorize_project
 
     # Ensure the user should be able to access this project
-    def authorize
+    def authorize_project
         id = params[:id]
 
         # Only apply this on actions where
@@ -21,8 +21,9 @@ class ProjectsController < ApplicationController
     end
 
     def show
-        @walker = ProjectManager.get_repo_commit_walker(@project.path)
-        @tree = ProjectManager.get_repo_tree(@project.path)
+        repo = ProjectManager.get_repo(@project.path)
+        @walker = ProjectManager.get_repo_commit_walker(repo)
+        @tree = ProjectManager.get_repo_tree(repo)
     end
 
     def new
@@ -42,18 +43,18 @@ class ProjectsController < ApplicationController
 
         # redirect_to :projects
     end
-
+    
     # Creates a new project and sets up a git repo
     # TODO: make this async...
     def create
         name = params[:project][:name]
         
         project = Project.new(:name => name, :user_id => @user.id)
-
+        
         # Since its a new project so we need to tell it to init
         # and generate the code and path fields
         project.init()
-
+        
         if project.save()
             ProjectManager.create_new_repo(project.path)
 
@@ -89,15 +90,9 @@ class ProjectsController < ApplicationController
     end
 
     def editfile
-        id = params[:id]
         oid = params[:oid]
-
-        path = @project.path
-
         repo = ProjectManager.get_repo(@project.path)
-
-        commit = repo.lookup(repo.head.target)
-        tree = commit.tree
+        tree = repo.lookup(repo.head.target).tree
 
         @file = tree.get_entry_by_oid(oid)
         @blob = Rugged::Blob.lookup(repo, @file[:oid])
@@ -105,19 +100,42 @@ class ProjectsController < ApplicationController
 
     def updatefile
         commit = params[:commit]
-        id = params[:id]
+        message = params[:message]
+        content = params[:content]
         oid = params[:oid]
         
         # get the repo
         repo = ProjectManager.get_repo(@project.path)
         
         if commit == 'Save'            
-            ProjectManager.update_file(repo, @user, oid, params[:content])
+            nid = ProjectManager.update_file(repo, @user, oid, content, message)
+            redirect_to '/projects/' + @project.id.to_s + '/showfile/' + nid.to_s
         elsif commit == 'Delete'
-            ProjectManager.delete_file(repo, @user, oid)
+            ProjectManager.delete_file(repo, @user, oid, message)
+            redirect_to '/projects/' + @project.id.to_s
         end
-        redirect_to :project
+    end
 
+    def showfile 
+        oid = params[:oid]
+        repo = ProjectManager.get_repo(@project.path)
+        tree = repo.lookup(repo.head.target).tree
+
+        @file = tree.get_entry_by_oid(oid)
+        @walker = ProjectManager.get_file_history(repo, @file)
+        @blob = Rugged::Blob.lookup(repo, @file[:oid])
+    end
+
+    def showfileversion
+        oid = params[:oid]
+        cid = params[:cid]
+        repo = ProjectManager.get_repo(@project.path)
+        tree = repo.lookup(cid).tree
+
+        @file = tree.get_entry_by_oid(oid)
+        @blob = Rugged::Blob.lookup(repo, oid)
+
+        @ooid = params[:ooid]
     end
 
 end

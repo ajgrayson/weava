@@ -17,6 +17,9 @@
   "dependencies": {
     "jquery": "~1.9.0",
     "twitter": "~3.0.0",
-    "font-awesome": "~3.2.1"
+    "font-awesome": "~3.2.1",
+    "holderjs": "~2.1.0",
+    "codemirror": "~3.18",
+    "marked": "0.2.9"
   }
 }
