@@ -1,6 +1,10 @@
 Weava App
 =====
 
+https://www.codeship.io/projects/c34fb0a0-1157-0131-db55-026770587945/status
+
+[https://www.codeship.io/projects/c34fb0a0-1157-0131-db55-026770587945/status]
+
 ### Starting fresh on dev
 
     $ rake db:create # creates the dev and test dbs
@@ -16,7 +20,10 @@ Make sure Postgres is running first
 Assuming that you have a server set up and configured just run
 
     $ bundle exec cap deploy:setup
-    $ bundle exec cap deploy:migrations
+    $ bundle exec cap deploy:migrations # does a deploy if there isn't one and runs the migrations
+
+    $ bundle exec cap deploy:update # seems to force an update but only from the local cache
+    $ bundle exec cap deploy:update_code # updates the cached code
 
 Note:
 

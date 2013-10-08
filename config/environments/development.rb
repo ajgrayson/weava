@@ -28,8 +28,8 @@ Weava::Application.configure do
   config.assets.debug = true
 
   # font-awesome
-  config.assets.paths << Rails.root.join("app", "assets", "fonts")
-  config.assets.precompile += %w(.svg .eot .woff .ttf)
+  #config.assets.paths << Rails.root.join("vendor", "assets", "components", "font-awesome", "font")
+  #config.assets.precompile += %w('fontawesome-webfont.svg' 'fontawesome-webfont.eot' 'fontawesome-webfont.woff' 'fontawesome-webfont.ttf', 'FontAwesome.otf')
 
   # Persona
   config.persona_url = 'http://localhost:3000'
