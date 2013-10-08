@@ -27,6 +27,10 @@ Weava::Application.configure do
   # number of complex assets.
   config.assets.debug = true
 
+  # font-awesome
+  config.assets.paths << Rails.root.join("app", "assets", "fonts")
+  config.assets.precompile += %w(.svg .eot .woff .ttf)
+
   # Persona
   config.persona_url = 'http://localhost:3000'
   config.base_url = 'http://localhost:3000'
