@@ -16,17 +16,12 @@ module Weava
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.
 
-    
-
     # bower
     config.assets.paths << Rails.root.join('vendor', 'assets', 'components')
 
-    # font-awesome
-    config.assets.paths << Rails.root.join("vendor", "assets", "components", "font-awesome", "font")
-    
-    config.assets.precompile += ['fontawesome-webfont.svg','fontawesome-webfont.eot','fontawesome-webfont.woff','fontawesome-webfont.ttf', 'FontAwesome.otf']
+    # config.assets.paths << Rails.root.join("vendor", "assets", "components", "font-awesome", "font")
 
-    debugger
+    # config.assets.precompile += %w( .svg .eot .woff .ttf )
 
     config.autoload_paths += %W(#{config.root}/lib)
 
