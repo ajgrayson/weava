@@ -2,10 +2,8 @@
 
 one:
   name: MyString
-  path: MyString
   user_id: 1
 
 two:
   name: MyString
-  path: MyString
   user_id: 1
