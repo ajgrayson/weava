@@ -18,11 +18,7 @@ module Weava
 
     # bower
     config.assets.paths << Rails.root.join('vendor', 'assets', 'components')
-
-    # config.assets.paths << Rails.root.join("vendor", "assets", "components", "font-awesome", "font")
-
-    # config.assets.precompile += %w( .svg .eot .woff .ttf )
-
+    
     config.autoload_paths += %W(#{config.root}/lib)
 
     # Set Time.zone default to the specified zone and make Active Record auto-convert to this zone.
