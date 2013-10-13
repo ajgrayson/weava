@@ -1,17 +1,16 @@
 <div class="panel panel-default">
   <div class="panel-heading">
-    <h3 class="panel-title pull-left"><%= @project.name %> Items</h3>
+    <h3 class="panel-title pull-left"><%= @folder[:name] %></h3>
     <div class="pull-right">
-      <!-- <a href="<%= new_project_folder_path(@project.id) %>"><i class="icon-folder-close"></i> New Folder</a> |  -->
-      <a href="<%= new_project_item_path(@project.id) %>"><i class="icon-file"></i> New Item</a>
+      <!-- <a href="<%= new_project_folder_path(@project.id) %>"><i class="icon-folder-close"></i> New Folder</a> | -->
+      <a href="<%= new_folder_item_path(@project.id, @folder[:id]) %>"><i class="icon-file"></i> New Item</a>
     </div>
     <div class="clearfix"></div>
   </div>
 
-  <% if @items && @items.length > 0 %>
+  <% if @folder[:items].length > 0 %>
       <div class="list-group">  
-      <% @items.each do |item| %>
-
+      <% @folder[:items].each do |item| %>
 
         <% if item[:type] == :blob %>
           <a href="<%= project_item_path(item[:project_id], item[:id]) %>" class="list-group-item">
@@ -36,7 +35,7 @@
    <% end %>
 
 </div>
-
+<!-- 
 <% if @history %>
 <div class="panel panel-default">
   <div class="panel-heading">
@@ -51,7 +50,7 @@
     </tr>
   </thead>
   <tbody>
-    <% @history.each do |c| %>
+    <%= @history.each do |c| %>
     <tr>
       <td><%= c.time %></td>
       <td><%= c.author[:name] %></td>
@@ -62,9 +61,4 @@
   </table>
 </div>
 <% end %>
-
-<%= link_to 'Edit', edit_project_path(@project), :class => 'btn btn-default' %>
-
-<% if @project.owner %>
-  <%= link_to 'Share', share_project_path(@project), :class => 'btn btn-default' %>
-<% end %>
+ -->

@@ -1,0 +1,32 @@
+
+<% if @folder[:errors] && @folder[:errors].any? %>
+  <div class="alert alert-danger">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <div><strong>Errors!</strong></div>
+    <div>
+      <ul>
+      <% @folder[:errors].each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+    </ul>
+    </div>
+  </div>
+<% end %>
+
+<%= form_tag project_folders_path(@project.id) do %>
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      Create a New Folder
+    </div>
+    <div class="panel-body">
+      <div class="form-group">
+        <%= hidden_field_tag "parent_id", @folder[:parent_id] %>
+        <%= text_field_tag "name", @folder[:name], :class => "form-control", :placeholder => 'Folder Name' %>
+      </div>
+      <div class="form-group">
+        <%= submit_tag "Save", :class => 'btn btn-primary' %>
+        <%= link_to "Cancel", project_path(@project.id), :class => 'btn' %>
+      </div>
+    </div>
+  </div>
+<% end %>

@@ -1,10 +1,11 @@
-<%= form_tag "/projects/" + @project.id.to_s + "/updatefile/" + @file[:oid].to_s, :method => 'post' do %>
+
+<%= form_tag project_item_path(@item[:project_id], @item[:id]), :method => 'put' do %>
   <div class="panel panel-default">
     <div class="panel-heading">
-      <div class="panel-title"><%= @file[:name] %></div>
+      <div class="panel-title"><%= @item[:name] %></div>
     </div>
     <div class="panel-body">
-      <%= text_area_tag "content", @blob.content, :class => "form-control" %>
+      <%= text_area_tag "content", @item[:content], :class => "form-control" %>
     </div>
   </div>
  
@@ -15,7 +16,7 @@
   <div>
     <div class="pull-left">
       <%= submit_tag "Save", :class => 'btn btn-primary' %>
-      <%= link_to "Cancel", '/projects/' + @project.id.to_s + '/showfile/' + @file[:oid].to_s, :class => 'btn' %>
+      <%= link_to "Cancel", project_item_path(@item[:project_id], @item[:id]), :class => 'btn' %>
     </div>
 
     <div class="pull-right">

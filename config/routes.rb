@@ -15,9 +15,7 @@ Weava::Application.routes.draw do
   post 'auth/authenticate' => 'auth#authenticate'
   
   # Users
-  Weava::Application.routes.draw do
-     resources :users
-  end
+  resources :users
 
   # Users extras
   get 'profile' => 'users#show'
@@ -25,21 +23,31 @@ Weava::Application.routes.draw do
   post 'save_setup' => 'users#save_setup'
 
   # Projects
-  Weava::Application.routes.draw do
-    resources :projects
+  resources :projects do
+    resources :items do
+      member do 
+        get 'version'
+      end
+    end
+    resources :folders
   end
 
-  # Project files
-  get 'projects' => 'projects#index'
-  get 'projects/:id/newfile' => 'projects#newfile'
-  post 'projects/:id/createfile' => 'projects#createfile'
-  get 'projects/:id/editfile/:oid' => 'projects#editfile'
-  get 'projects/:id/showfile/:oid' => 'projects#showfile'
-  get 'projects/:id/showfileversion/:oid' => 'projects#showfileversion'
-  post 'projects/:id/updatefile/:oid' => 'projects#updatefile'
-  get 'projects/:id/share' => 'projects#share'
-  post 'projects/:id/share' => 'projects#create_share'
-  get 'projects/accept/:code' => 'projects#accept_share'
+  # # Project files
+  # get 'projects' => 'projects#index'
+  # get 'projects/:id/share' => 'projects#share'
+  # post 'projects/:id/share' => 'projects#create_share'
+  # get 'projects/accept/:code' => 'projects#accept_share'
+
+  # Weava::Application.routes.draw do
+  #   resources :items
+  # end
+
+  # get 'projects/:id/newfile' => 'projects#new'
+  # post 'projects/:id/createfile' => 'projects#createfile'
+  # get 'projects/:id/editfile/:oid' => 'projects#editfile'
+  # get 'projects/:id/showfile/:oid' => 'projects#showfile'
+  # get 'projects/:id/showfileversion/:oid' => 'projects#showfileversion'
+  # post 'projects/:id/updatefile/:oid' => 'projects#updatefile'
 
   # Example of named route that can be invoked with purchase_url(id: product.id)
   #   get 'products/:id/purchase' => 'catalog#purchase', as: :purchase

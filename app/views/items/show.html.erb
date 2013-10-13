@@ -1,18 +1,18 @@
 <div class="panel panel-default">
   <div class="panel-heading">
-    <h3 class="panel-title"><%= @file[:name] %></h3>
+    <h3 class="panel-title"><%= @item[:name] %></h3>
   </div>
   <div class="panel-body">
-    <textarea style="display:none" id="content_source"><%= @blob.content %></textarea>
+    <textarea style="display:none" id="content_source"><%= @item[:content] %></textarea>
     <div id="content_view"></div>
   </div>
 </div>
 <div>
-  <%= link_to "Edit", '/projects/' + @project.id.to_s + '/editfile/' + @file[:oid].to_s, :class => 'btn btn-default' %>
+  <%= link_to "Edit", edit_project_item_path(@item[:project_id], @item[:id]), :class => 'btn btn-default' %>
   <%= link_to "Cancel", project_path(@project), :class => 'btn btn-default' %>
 </div>
 
-<% if @walker %>
+<% if @history %>
 <br />
 <div class="panel panel-default">
   <div class="panel-heading">
@@ -27,11 +27,11 @@
     </tr>
   </thead>
   <tbody>
-    <% @walker.each do |c| %>
+    <% @history.each do |c| %>
       <tr>
-        <td><%= link_to c.message, '/projects/' + @project.id.to_s + '/showfileversion/' + c.oid.to_s + '?cid=' + c.commit_oid + '&ooid=' + @file[:oid] %></td>
-        <td><%= c.author %></td>
-        <td><%= c.time %></td>
+        <td><%= link_to c[:message], project_item_version_path(@item[:project_id], @item[:id], c[:oid], c[:commit_oid]) %></td>
+        <td><%= c[:author] %></td>
+        <td><%= c[:time] %></td>
       </tr>
     <% end %>
   </tbody>

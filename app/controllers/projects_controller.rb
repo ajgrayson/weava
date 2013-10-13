@@ -13,7 +13,7 @@ class ProjectsController < ApplicationController
         if id
             @project = Project.find_by_id(id)
             if not @project or @project.user_id != @user.id
-                redirect_to '/404.html'
+                redirect_to '/403.html'
             end
         end
     end
@@ -23,9 +23,10 @@ class ProjectsController < ApplicationController
     end
 
     def show
-        repo = ProjectManager.get_repo(@project.path)
-        @walker = ProjectManager.get_repo_commit_walker(repo)
-        @tree = ProjectManager.get_repo_tree(repo)
+        #repo = ProjectManager.get_repo(@project.path)
+        repo = GitRepo.new(@project.path)
+        @history = repo.get_commit_walker()
+        @items = repo.get_current_tree(@project.id)
     end
 
     def new
@@ -33,21 +34,18 @@ class ProjectsController < ApplicationController
     end
 
     def edit
-        @project = Project.find(params[:id])
+        # nothing here... carry on
     end
 
     def delete 
         # project = Project.find_by_id(params[:id])
-
         # debugger
-
         # project.remove()
-
         # redirect_to :projects
     end
 
     def share
-
+        # nothing here... carry on
     end
 
     def create_share
@@ -90,7 +88,8 @@ class ProjectsController < ApplicationController
                         new_project = Project.new(:name => project.name, :user_id => @user.id, :owner => false, :code => project.code)                        
                         new_project.save
 
-                        ProjectManager.clone_repo(project.upstream_path, new_project.path)                        
+                        repo = GitRepo.new(project.upstream_path)
+                        repo.clone_to(new_project.path)
                     end
 
                     redirect_to projects_path, notice: 'New Project Added'
@@ -119,8 +118,9 @@ class ProjectsController < ApplicationController
             project.init()
 
             if project.save()
-                ProjectManager.create_new_repo(project)
-
+                # ProjectManager.create_new_repo(project)
+                GitRepo.init_at(project.upstream_path, project.path)
+                
                 redirect_to :projects
             else
                 render 'new'
@@ -133,78 +133,12 @@ class ProjectsController < ApplicationController
 
     def update
         project = Project.find_by_id(params[:id])
-
+        
         if(project.update(params[:project].permit(:name))) 
             redirect_to :projects
         else
             render 'edit'
         end
-    end
-
-    def newfile
-        @project = Project.find_by_id(params[:id])
-    end
-
-    def createfile
-        name = params[:name]
-        content = params[:content]
-        
-        # get the repo
-        repo = ProjectManager.get_repo(@project.path)
-        ProjectManager.create_file(repo, @user, name, content)
-        
-        redirect_to :project
-    end
-
-    def editfile
-        oid = params[:oid]
-        repo = ProjectManager.get_repo(@project.path)
-        tree = repo.lookup(repo.head.target).tree
-
-        @file = tree.get_entry_by_oid(oid)
-        @blob = Rugged::Blob.lookup(repo, @file[:oid])
-    end
-
-    def updatefile
-        commit = params[:commit]
-        message = params[:message]
-        content = params[:content]
-        oid = params[:oid]
-        
-        # get the repo
-        repo = ProjectManager.get_repo(@project.path)
-        
-        if commit == 'Save'            
-            nid = ProjectManager.update_file(repo, @user, oid, content, message)
-
-            redirect_to '/projects/' + @project.id.to_s + '/showfile/' + nid.to_s
-        elsif commit == 'Delete'
-            ProjectManager.delete_file(repo, @user, oid, message)
-
-            redirect_to project_path(@project)
-        end
-    end
-
-    def showfile 
-        oid = params[:oid]
-        repo = ProjectManager.get_repo(@project.path)
-        tree = repo.lookup(repo.head.target).tree
-
-        @file = tree.get_entry_by_oid(oid)
-        @walker = ProjectManager.get_file_history(repo, @file)
-        @blob = Rugged::Blob.lookup(repo, @file[:oid])
-    end
-
-    def showfileversion
-        oid = params[:oid]
-        cid = params[:cid]
-        repo = ProjectManager.get_repo(@project.path)
-        tree = repo.lookup(cid).tree
-
-        @file = tree.get_entry_by_oid(oid)
-        @blob = Rugged::Blob.lookup(repo, oid)
-
-        @ooid = params[:ooid]
     end
 
 end

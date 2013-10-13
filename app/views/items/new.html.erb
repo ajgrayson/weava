@@ -1,0 +1,35 @@
+
+<% if @item[:errors] && @item[:errors].any? %>
+  <div class="alert alert-danger">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <div><strong>Errors!</strong></div>
+    <div>
+      <ul>
+      <% @item[:errors].each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+    </ul>
+    </div>
+  </div>
+<% end %>
+
+<%= form_tag project_items_path(@project.id), :class => "form-inline" do %>
+  <% if @folder %>
+    <%= hidden_field_tag "folder_id", @folder[:id] %>
+  <% end %>
+  <div class="panel panel-default">
+    <div class="panel-heading">
+        <% if @folder %>
+        <label><i class="icon-folder-open"></i> <%= @folder[:name] + "/" %></label>
+        <% end %>
+        <%= text_field_tag "name", @item[:name], :class => "form-control input-large", :placeholder => 'File Name' %>
+    </div>
+    <div class="panel-body">
+      <%= text_area_tag "content", @item[:content], :class => "form-control" %>
+    </div>
+  </div>
+  <div>
+    <%= submit_tag "Save", :class => 'btn btn-primary' %>
+    <%= link_to "Cancel", project_path(@project.id), :class => 'btn' %>
+  </div>
+<% end %>

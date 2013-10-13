@@ -10,33 +10,109 @@ module ProjectManager
         clone_repo(project.upstream_path, project.path)
     end
 
-    def self.clone_repo(orig_path, new_path)
-        Rugged::Repository.clone_at(orig_path, new_path)
+    def self.clone_repo(upstream_path, path)
+        Rugged::Repository.clone_at(upstream_path, path, {:bare => true})
     end
 
     def self.get_repo(path)
         Rugged::Repository.new(path)
     end
     
-    def self.create_file(repo, user, name, content)
-        filename = sanitize_filename(name)
+    # def self.create_folder(repo, user, name) 
+    #     foldername = name # sanitize_filename(name)
 
-        # write the content
-        oid = repo.write(content, :blob)
+    #     if not repo.head_unborn?
+    #         tree = repo.lookup(repo.head.target).tree
+    #         folder = tree.get_entry(foldername)
+    #     else
+    #         folder = false
+    #     end
 
-        index = repo.index
-        index.add(:path => filename, :oid => oid, :mode => 0100644)
-        index.write
+    #     if folder
+    #         return false
+    #     else
+    #         # write the content
+    #         oid = repo.write(name + " Folder", :blob)
 
-        options = {}
-        options[:tree] = index.write_tree(repo)
-        options[:author] = { :email => user.email, :name => user.name, :time => Time.now }
-        options[:committer] = { :email => user.email, :name => user.name, :time => Time.now }
-        options[:message] ||= "Added " + filename
-        options[:parents] = repo.empty? ? [] : [ repo.head.target ].compact
-        options[:update_ref] = 'HEAD'
+    #         index = repo.index
+    #         index.add(:path => foldername, :oid => oid, :mode => 040000)
+    #         index.write
 
-        Rugged::Commit.create(repo, options)
+    #         options = {}
+    #         options[:tree] = index.write_tree(repo)
+    #         options[:author] = { :email => user.email, :name => user.name, :time => Time.now }
+    #         options[:committer] = { :email => user.email, :name => user.name, :time => Time.now }
+    #         options[:message] ||= "Added folder " + foldername
+    #         options[:parents] = repo.empty? ? [] : [ repo.head.target ].compact
+    #         options[:update_ref] = "HEAD"
+
+    #         Rugged::Commit.create(repo, options)
+
+    #         return true
+    #     end
+
+    # end
+
+    # def self.get_folder(repo, folder_id)
+    #     tree = repo.lookup(repo.head.target).tree
+    #     file = tree.get_entry_by_oid(folder_id)
+
+    #     return {
+    #         :id => file[:oid],
+    #         :name => file[:name],
+    #         :items => []
+    #     }
+    # end
+
+    def self.get_file(repo, file_id)
+        tree = repo.lookup(repo.head.target).tree
+        file = tree.get_entry_by_oid(id)
+        blob = Rugged::Blob.lookup(repo, file[:oid])
+
+        return { 
+            :id => file[:oid],
+            :name => file[:name],
+            :content => blob.content
+        }
+    end
+
+    def self.create_file(repo, user, name, content, folder_id = nil)
+        filename = name #sanitize_filename(name)
+
+        if not repo.head_unborn?
+            tree = repo.lookup(repo.head.target).tree
+            file = tree.get_entry(filename)
+        else
+            file = false
+        end
+
+        # if folder_id
+        #     folder = tree.get_entry_by_oid(folder_id)
+        #     path += folder[:name] + "/"
+        # end
+
+        if file
+            return false
+        else
+            # write the content
+            oid = repo.write(content, :blob)
+
+            index = repo.index
+            index.add(:path => filename, :oid => oid, :mode => 0100644)
+            index.write
+            
+            options = {}
+            options[:tree] = index.write_tree(repo)
+            options[:author] = { :email => user.email, :name => user.name, :time => Time.now }
+            options[:committer] = { :email => user.email, :name => user.name, :time => Time.now }
+            options[:message] ||= "Added item " + filename
+            options[:parents] = repo.empty? ? [] : [ repo.head.target ].compact
+            options[:update_ref] = "HEAD"
+
+            Rugged::Commit.create(repo, options)
+
+            return true
+        end
     end
 
     def self.update_file(repo, user, oid, content, message)
@@ -50,7 +126,7 @@ module ProjectManager
         index.write
 
         commit_message = message
-        if commit_message == '' or commit_message == nil
+        if commit_message == "" or commit_message == nil
             commit_message = "Updated " + file[:name]
         end
 
@@ -60,7 +136,7 @@ module ProjectManager
         options[:committer] = { :email => user.email, :name => user.name, :time => Time.now }
         options[:message] ||= commit_message
         options[:parents] = repo.empty? ? [] : [ repo.head.target ].compact
-        options[:update_ref] = 'HEAD'
+        options[:update_ref] = "HEAD"
 
         Rugged::Commit.create(repo, options)
 
@@ -80,7 +156,7 @@ module ProjectManager
         index.write
 
         commit_message = message
-        if commit_message == '' or commit_message == nil
+        if commit_message == "" or commit_message == nil
             commit_message = "Deleted " + file[:name]
         end
 
@@ -90,16 +166,27 @@ module ProjectManager
         options[:committer] = { :email => user.email, :name => user.name, :time => Time.now }
         options[:message] ||= commit_message
         options[:parents] = repo.empty? ? [] : [ repo.head.target ].compact
-        options[:update_ref] = 'HEAD'
+        options[:update_ref] = "HEAD"
 
         Rugged::Commit.create(repo, options)
     end
 
     # Get the tree of files for a repo
-    def self.get_repo_tree(repo)
+    def self.get_repo_tree(project_id, repo)
         if !repo.empty?
             commit = repo.lookup(repo.head.target)
-            commit.tree
+            
+            tree = []
+            commit.tree.each do |item|
+                tree.push({
+                    :id => item[:oid],
+                    :project_id => project_id,
+                    :name => item[:name],
+                    :type => item[:type]
+                })
+            end
+            
+            tree
         end
     end
 
