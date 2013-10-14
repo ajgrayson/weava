@@ -8,6 +8,10 @@ module ProjectsHelper
         '/projects/' + project.id.to_s + '/create_share'
     end
 
+    def project_central_path(project)
+        '/projects/' + project.id.to_s + '?view_central=true'
+    end
+
     # def show_file_path(project, id)
     #     '/projects/' + project.id.to_s + '/showfile/' + id.to_s
     # end

@@ -214,5 +214,9 @@ class GitRepo
         Rugged::Object.lookup(@repo, oid)
     end
 
+    def quick_merge(source_path, destination_path)
+
+    end
+
 end
 

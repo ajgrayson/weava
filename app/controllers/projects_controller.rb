@@ -24,7 +24,15 @@ class ProjectsController < ApplicationController
     end
 
     def show
-        repo = GitRepo.new(@project.path)
+        view_central = params[:view_central]
+
+        if view_central == "true"
+            repo = GitRepo.new(@project.upstream_path)
+            @central_repo = true
+        else
+            repo = GitRepo.new(@project.path)
+        end
+
         @history = repo.get_commit_walker()
         @items = repo.get_current_tree(@project.id)
     end

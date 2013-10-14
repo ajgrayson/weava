@@ -1,16 +1,30 @@
+<div>
+  <% if @central_repo %>
+  <a class="pull-left btn btn-default"><i class="icon-arrow-down"></i> Merge Changes</a>
+  <% end %>
+  <ul class="nav nav-pills pull-right">
+    <li class="<%= @central_repo ? "" : "active" %>"><a href="<%= project_path(@project) %>"><i class="icon-code-fork"></i> Fork</a></li>
+    <li class="<%= @central_repo ? "active" : "" %>"><a href="<%= project_central_path(@project) %>"><i class="icon-cloud"></i> Central</a></li>
+  </ul>
+  <div class="clearfix"></div>
+</div>
+
+<br />
+
 <div class="panel panel-default">
   <div class="panel-heading">
     <h3 class="panel-title pull-left"><%= @project.name %> Items</h3>
+    <% if not @central_repo %>
     <div class="pull-right">
       <a href="<%= new_project_item_path(@project.id) %>"><i class="icon-file"></i> New Item</a>
     </div>
+    <% end %>
     <div class="clearfix"></div>
   </div>
 
   <% if @items && @items.length > 0 %>
       <div class="list-group">  
       <% @items.each do |item| %>
-
 
         <% if item[:type] == :blob %>
           <a href="<%= project_item_path(item[:project_id], item[:id]) %>" class="list-group-item">
@@ -62,8 +76,10 @@
 </div>
 <% end %>
 
-<%= link_to 'Edit', edit_project_path(@project), :class => 'btn btn-default' %>
+<% if not @central_repo %>
+  <%= link_to 'Edit', edit_project_path(@project), :class => 'btn btn-default' %>
 
-<% if @project.owner %>
-  <%= link_to 'Share', share_project_path(@project), :class => 'btn btn-default' %>
+  <% if @project.owner %>
+    <%= link_to 'Share', share_project_path(@project), :class => 'btn btn-default' %>
+  <% end %>
 <% end %>
