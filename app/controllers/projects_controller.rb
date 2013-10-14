@@ -19,11 +19,11 @@ class ProjectsController < ApplicationController
     end
 
     def index
-        @projects = Project.where("user_id = ?", @user.id)
+        @projects = Project.where("user_id = ? and owner = ?", @user.id, true)
+        @shared_projects = Project.where("user_id = ? AND owner = ?", @user.id, false)
     end
 
     def show
-        #repo = ProjectManager.get_repo(@project.path)
         repo = GitRepo.new(@project.path)
         @history = repo.get_commit_walker()
         @items = repo.get_current_tree(@project.id)
@@ -118,9 +118,8 @@ class ProjectsController < ApplicationController
             project.init()
 
             if project.save()
-                # ProjectManager.create_new_repo(project)
                 GitRepo.init_at(project.upstream_path, project.path)
-                
+
                 redirect_to :projects
             else
                 render 'new'
@@ -133,7 +132,7 @@ class ProjectsController < ApplicationController
 
     def update
         project = Project.find_by_id(params[:id])
-        
+
         if(project.update(params[:project].permit(:name))) 
             redirect_to :projects
         else

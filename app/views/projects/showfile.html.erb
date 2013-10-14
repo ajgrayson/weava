@@ -1,0 +1,40 @@
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title"><%= @file[:name] %></h3>
+  </div>
+  <div class="panel-body">
+    <textarea style="display:none" id="content_source"><%= @blob.content %></textarea>
+    <div id="content_view"></div>
+  </div>
+</div>
+<div>
+  <%= link_to "Edit", '/projects/' + @project.id.to_s + '/editfile/' + @file[:oid].to_s, :class => 'btn btn-default' %>
+  <%= link_to "Cancel", project_path(@project), :class => 'btn btn-default' %>
+</div>
+
+<% if @walker %>
+<br />
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title"><i class="icon-time"></i> History</h3>
+  </div>
+  <table class="table">
+  <thead>
+    <tr>
+      <th>Message</th>
+      <th>Author</th>
+      <th>Time</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @walker.each do |c| %>
+      <tr>
+        <td><%= link_to c.message, '/projects/' + @project.id.to_s + '/showfileversion/' + c.oid.to_s + '?cid=' + c.commit_oid + '&ooid=' + @file[:oid] %></td>
+        <td><%= c.author %></td>
+        <td><%= c.time %></td>
+      </tr>
+    <% end %>
+  </tbody>
+  </table>
+</div>
+<% end %>

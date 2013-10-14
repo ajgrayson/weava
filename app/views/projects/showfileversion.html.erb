@@ -1,0 +1,12 @@
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title"><%= @file[:name] %></h3>
+  </div>
+  <div class="panel-body">
+    <textarea style="display:none" id="content_source"><%= @blob.content %></textarea>
+    <div id="content_view"></div>
+  </div>
+</div>
+<div>
+  <%= link_to "Cancel", '/projects/' + @project.id.to_s + '/showfile/' + @ooid.to_s, :class => 'btn btn-default' %>
+</div>

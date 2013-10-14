@@ -9,7 +9,7 @@
 </div>
 <div>
   <%= link_to "Edit", edit_project_item_path(@item[:project_id], @item[:id]), :class => 'btn btn-default' %>
-  <%= link_to "Cancel", project_path(@project), :class => 'btn btn-default' %>
+  <%= link_to "Back to Project", project_path(@project), :class => 'btn' %>
 </div>
 
 <% if @history %>

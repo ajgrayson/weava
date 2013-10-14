@@ -29,8 +29,12 @@ Weava::Application.routes.draw do
         get 'version'
       end
     end
-    resources :folders
+    member do
+      get 'share'
+      post 'create_share'
+    end
   end
+  get 'projects/accept/:code' => 'projects#accept_share'
 
   # # Project files
   # get 'projects' => 'projects#index'

@@ -17,12 +17,6 @@ class ItemsController < ApplicationController
     end
 
     def new
-        # folder_id = params[:folder_id]
-        # if folder_id
-        #     repo = GitRepo.new(@project.path)
-        #     @folder = ProjectManager.get_folder(repo, folder_id)
-        # end
-
         @item ={
             :project_id => @project.id,
             :name => "",

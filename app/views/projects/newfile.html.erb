@@ -1,0 +1,14 @@
+<%= form_tag "/projects/" + @project.id.to_s + "/createfile" do %>
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <%= text_field_tag "name", "", :class => "form-control", :placeholder => 'File Name' %>
+    </div>
+    <div class="panel-body">
+      <%= text_area_tag "content", "", :class => "form-control" %>
+    </div>
+  </div>
+  <div>
+    <%= submit_tag "Save", :class => 'btn btn-primary' %>
+    <%= link_to "Cancel", project_path(@project), :class => 'btn' %>
+  </div>
+<% end %>

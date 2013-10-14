@@ -30,8 +30,8 @@ before_action :authorize_project
         parent_id = params[:parent_id]
         
         # get the repo
-        repo = ProjectManager.get_repo(@project.path)
-        if ProjectManager.create_folder(repo, @user, name)
+        repo = GitRepo.new(@project.path)
+        if repo.create_folder(@user, name)
             redirect_to project_path(@project.id)
         else
             @folder = {
@@ -49,7 +49,7 @@ before_action :authorize_project
 
     def show
         id = params[:id]
-        repo = ProjectManager.get_repo(@project.path)
-        @folder = ProjectManager.get_folder(repo, id)
+        repo = GitRepo.new(@project.path)
+        @folder = repo.get_folder(id)
     end
 end

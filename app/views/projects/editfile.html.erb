@@ -1,0 +1,27 @@
+<%= form_tag "/projects/" + @project.id.to_s + "/updatefile/" + @file[:oid].to_s, :method => 'post' do %>
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <div class="panel-title"><%= @file[:name] %></div>
+    </div>
+    <div class="panel-body">
+      <%= text_area_tag "content", @blob.content, :class => "form-control" %>
+    </div>
+  </div>
+ 
+  <div class="form-group">
+    <%= text_field_tag "message", "", :class => "form-control", :placeholder => "Description of change (optional)" %>
+  </div>
+
+  <div>
+    <div class="pull-left">
+      <%= submit_tag "Save", :class => 'btn btn-primary' %>
+      <%= link_to "Cancel", '/projects/' + @project.id.to_s + '/showfile/' + @file[:oid].to_s, :class => 'btn' %>
+    </div>
+
+    <div class="pull-right">
+      <%= submit_tag "Delete", :class => 'btn btn-danger' %>
+    </div>
+
+    <div class="clearfix"></div>
+  </div>
+<% end %>

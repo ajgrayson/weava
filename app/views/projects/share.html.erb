@@ -11,7 +11,7 @@
     </div>
   <% end %>
 
-  <%= form_tag :url => share_project_path(@project), :method => 'post' do %>
+  <%= form_tag(create_project_share_path(@project), :method => 'post') do %>
 
     <div class="form-group">
         <%= label_tag 'With' %>
