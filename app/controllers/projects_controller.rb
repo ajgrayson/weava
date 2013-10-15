@@ -126,7 +126,7 @@ class ProjectsController < ApplicationController
             project.init()
 
             if project.save()
-                GitRepo.init_at(project.upstream_path, project.path)
+                GitRepo.init_at(project.upstream_path, project.path, @user)
 
                 redirect_to :projects
             else
@@ -146,6 +146,11 @@ class ProjectsController < ApplicationController
         else
             render 'edit'
         end
+    end
+
+    def view_diff
+        upstream_repo = GitRepo.new(@project.upstream_path)
+        @diff = upstream_repo.diff(@project.path)
     end
 
 end

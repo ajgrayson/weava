@@ -32,6 +32,7 @@ Weava::Application.routes.draw do
     member do
       get 'share'
       post 'create_share'
+      get 'view_diff'
     end
   end
   get 'projects/accept/:code' => 'projects#accept_share'

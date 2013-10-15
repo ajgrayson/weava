@@ -1,6 +1,6 @@
 <div>
   <% if @central_repo %>
-  <a class="pull-left btn btn-default"><i class="icon-arrow-down"></i> Merge Changes</a>
+  <a class="pull-left btn btn-default" href="<%= view_diff_project_path(@project) %>"><i class="icon-arrow-down"></i> Merge Changes</a>
   <% end %>
   <ul class="nav nav-pills pull-right">
     <li class="<%= @central_repo ? "" : "active" %>"><a href="<%= project_path(@project) %>"><i class="icon-code-fork"></i> Fork</a></li>

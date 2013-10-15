@@ -11,9 +11,12 @@ class GitRepo
         end
     end
 
-    def self.init_at(upstream_path, path)
+    def self.init_at(upstream_path, path, user)
         # create upstream
         Rugged::Repository.init_at(upstream_path, :bare)
+
+        us_repo = GitRepo.new(upstream_path)
+        us_repo.create_file(user, "README.md", "")
 
         # create user fork
         Rugged::Repository.clone_at(upstream_path, path, {:bare => true})
@@ -189,7 +192,7 @@ class GitRepo
         walker.each do |commit|
             tree = commit.tree
             tree.each do |leaf|
-                if leaf[:name] == file[:name] and not uniquecommits[leaf[:oid]] #and file[:oid] != leaf[:oid]
+                if leaf[:name] == file[:name] and not uniquecommits[leaf[:oid]]
                     
                     uniquecommits[leaf[:oid]] = true
                     history.push({
@@ -214,8 +217,23 @@ class GitRepo
         Rugged::Object.lookup(@repo, oid)
     end
 
-    def quick_merge(source_path, destination_path)
+    def diff(downstream_path)
+        src_repo = Rugged::Repository.new(downstream_path)
+        src_tree = src_repo.lookup(src_repo.head.target).tree
 
+        des_tree = @repo.lookup(@repo.head.target).tree
+        
+        diff = src_tree.diff(des_tree)
+        diff_list = []
+        diff.each_delta do |diff|
+            diff_list.push({
+                old_path: diff.old_file[:path],
+                new_path: diff.new_file[:path],
+                status: diff.status,
+                similarity: diff.similarity
+            })
+        end
+        return diff_list
     end
 
 end
