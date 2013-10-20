@@ -12,12 +12,16 @@ module ProjectsHelper
         '/projects/' + project.id.to_s + '?view_central=true'
     end
 
-    # def show_file_path(project, id)
-    #     '/projects/' + project.id.to_s + '/showfile/' + id.to_s
-    # end
+    def extended_project_item_path(project_id, id, central)
+        path = project_item_path(project_id, id)
+        if central
+            path = path + '?view_central=true'
+        end
+        path
+    end
 
-    # def new_file_path(project)
-    #     '/projects/' + project.id.to_s + '/newfile'
-    # end 
+    def project_share_accept_path(code)
+        '/projects/accept/' + code
+    end
 
 end

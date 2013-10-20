@@ -1,6 +1,8 @@
 <div>
-  <% if @central_repo %>
-  <a class="pull-left btn btn-default" href="<%= view_diff_project_path(@project) %>"><i class="icon-arrow-down"></i> Merge Changes</a>
+  <% if not @central_repo %>
+  <div class="pull-left">
+    <a class="btn btn-default" data-action="pull" data-id="<%= @project.id %>" href="<%= pull_project_path(@project) %>" title="Pull down changes from upstream"><i class="icon-refresh"></i> Sync</a>
+  </div>
   <% end %>
   <ul class="nav nav-pills pull-right">
     <li class="<%= @central_repo ? "" : "active" %>"><a href="<%= project_path(@project) %>"><i class="icon-code-fork"></i> Fork</a></li>
@@ -13,7 +15,7 @@
 
 <div class="panel panel-default">
   <div class="panel-heading">
-    <h3 class="panel-title pull-left"><%= @project.name %> Items</h3>
+    <h3 class="panel-title pull-left"><%= @project.name %> Items (<%= @project.code %>)</h3>
     <% if not @central_repo %>
     <div class="pull-right">
       <a href="<%= new_project_item_path(@project.id) %>"><i class="icon-file"></i> New Item</a>
@@ -27,14 +29,8 @@
       <% @items.each do |item| %>
 
         <% if item[:type] == :blob %>
-          <a href="<%= project_item_path(item[:project_id], item[:id]) %>" class="list-group-item">
+          <a href="<%= extended_project_item_path(item[:project_id], item[:id], @central_repo) %>" class="list-group-item">
             <i class="icon-file-text-alt"></i> <%= item[:name] %> 
-            <i class="icon-chevron-right pull-right"></i>
-            <div class="clearfix"></div>
-          </a>
-        <% else %>
-          <a href="<%= project_folder_path(item[:project_id], item[:id]) %>" class="list-group-item">
-            <i class="icon-folder-close"></i> <%= item[:name] %> 
             <i class="icon-chevron-right pull-right"></i>
             <div class="clearfix"></div>
           </a>

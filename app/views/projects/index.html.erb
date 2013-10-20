@@ -15,7 +15,7 @@
           <% @projects.each do |project| %>
 
             <a href="<%= project_path(project) %>" class="list-group-item">
-              <i class="icon-briefcase"></i> <%= project.name %>
+              <i class="icon-briefcase"></i> <%= project.name %> (<%= project.code %>)
               <i class="icon-chevron-right pull-right"></i>
               <div class="clearfix"></div>
             </a>
@@ -50,6 +50,16 @@
               <i class="icon-chevron-right pull-right"></i>
               <div class="clearfix"></div>
             </a>
+
+            <% end %>
+
+            <% @projects_awaiting_acceptance.each do |project| %>
+
+            <div class="list-group-item">
+              <i class="icon-question-sign"></i> <%= project[:name] %> (Awaiting acceptance)
+              <a href="<%= project_share_accept_path(project[:share_code]) %>" class="pull-right"><i class="icon-ok"></i> Accept</a>
+              <div class="clearfix"></div>
+            </div>
 
             <% end %>
             

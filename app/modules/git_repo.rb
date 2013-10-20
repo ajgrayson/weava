@@ -11,21 +11,39 @@ class GitRepo
         end
     end
 
-    def self.init_at(upstream_path, path, user)
-        # create upstream
-        Rugged::Repository.init_at(upstream_path, :bare)
+    # create a new central repo, clone it to the user and 
+    # prep it for action
+    def self.init_at(origin_path, path, user)
+        # create origin
+        Rugged::Repository.init_at(origin_path, :bare)
 
-        us_repo = GitRepo.new(upstream_path)
+        us_repo = GitRepo.new(origin_path)
         us_repo.create_file(user, "README.md", "")
 
-        # create user fork
-        Rugged::Repository.clone_at(upstream_path, path, {:bare => true})
+        ds_repo = us_repo.fork_to(path)
 
-        return self.new(path)
+        return ds_repo
     end
 
-    def clone_to(path)
-        Rugged::Repository.clone_at(@path, path, {:bare => true})
+    def fork_to(path)
+        Rugged::Repository.clone_at(@path, path, { :bare => true })
+
+        repo = GitRepo.new(path)
+
+        # after a clone it seems that we need to init the initial index
+        # ourselves. not sure why but this seems to work. otherwise
+        # any files already in the repo get blown away if we add another
+        # file...
+        repo.init_index
+
+        repo
+    end
+
+    # sets the repo index to the state of the current tree
+    def init_index
+        tree = @repo.lookup(@repo.head.target).tree
+        @repo.index.read_tree(tree)
+        @repo.index.write
     end
 
     def get_commit_walker()
@@ -217,13 +235,97 @@ class GitRepo
         Rugged::Object.lookup(@repo, oid)
     end
 
-    def diff(downstream_path)
-        src_repo = Rugged::Repository.new(downstream_path)
-        src_tree = src_repo.lookup(src_repo.head.target).tree
+    # pull down changes from origin
+    def fetch_origin()
+        remote = Rugged::Remote.lookup(@repo, 'origin')
+        remote.connect(:fetch) do |r|
+            r.download
+        end
+        remote.update_tips!
+    end
 
+    # push the current master to the remote
+    def push_upstream()
+        @repo.push('origin', ['refs/heads/master'])
+    end
+
+    def merge_in_upstream
+        origin_ref = Rugged::Reference.lookup(@repo, 'refs/remotes/origin/master')
+
+        src_tree = @repo.lookup(origin_ref.target).tree
         des_tree = @repo.lookup(@repo.head.target).tree
         
-        diff = src_tree.diff(des_tree)
+        index = src_tree.merge(des_tree)
+
+        if index.conflicts
+            conflicts = []
+            index.conflicts.each do |c|
+                conflicts.push({
+                    :our_path => c[:ours][:path],
+                    :their_path => c[:theirs][:path]
+                })
+            end
+
+            return conflicts
+        else
+            options = {}
+            options[:tree] = index.write_tree(@repo)
+            options[:author] = { :email => user.email, :name => user.name, :time => Time.now }
+            options[:committer] = { :email => user.email, :name => user.name, :time => Time.now }
+            options[:message] ||= "Merged in origin changes"
+            options[:parents] = repo.empty? ? [] : [ @repo.head.target ].compact
+            options[:update_ref] = "HEAD"
+
+            Rugged::Commit.create(@repo, options)
+
+            return true 
+        end
+    end
+
+    # use before merging in from origin
+    # origin is new
+    # local is old
+    def origin_to_local_diff()
+        origin_ref = Rugged::Reference.lookup(@repo, 'refs/remotes/origin/master')
+
+        # new tree
+        ot_tree = @repo.lookup(origin_ref.target).tree
+
+        # old tree
+        dst_tree = @repo.lookup(@repo.head.target).tree
+        
+        diff = dst_tree.diff(ot_tree)
+        diff_list = []
+        diff.each_delta do |diff|
+            diff_list.push({
+                old_path: diff.old_file[:path],
+                new_path: diff.new_file[:path],
+                status: diff.status,
+                similarity: diff.similarity
+            })
+        end
+        return diff_list
+    end
+
+    # use before ??
+    # local is new 
+    # origin is old
+    def local_to_origin_diff()
+
+    end
+
+    def diff_upstream()
+        upstream_ref = Rugged::Reference.lookup(@repo, 'refs/remotes/origin/master')
+
+        #mb_oid = @rep.merge_base(@repo.head.target, upstream_ref)
+
+        # old tree
+        ust_tree = @repo.lookup(upstream_ref.target).tree
+
+        # new tree
+        dst_tree = @repo.lookup(@repo.head.target).tree
+        
+        diff = ust_tree.diff(dst_tree)
         diff_list = []
         diff.each_delta do |diff|
             diff_list.push({

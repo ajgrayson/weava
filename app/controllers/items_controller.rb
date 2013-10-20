@@ -82,7 +82,15 @@ class ItemsController < ApplicationController
 
     def show
         oid = params[:id]
-        repo = GitRepo.new(@project.path)
+
+        view_central = params[:view_central]
+        if view_central == "true"
+            repo = GitRepo.new(@project.upstream_path)
+            @central_repo = true
+        else
+            repo = GitRepo.new(@project.path)
+        end
+
         @item = repo.get_file(oid)
         @item[:project_id] = @project.id
         @history = repo.get_file_history(oid)

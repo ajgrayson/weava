@@ -21,6 +21,19 @@ class ProjectsController < ApplicationController
     def index
         @projects = Project.where("user_id = ? and owner = ?", @user.id, true)
         @shared_projects = Project.where("user_id = ? AND owner = ?", @user.id, false)
+
+        @projects_awaiting_acceptance = []
+        shares = ProjectShare.where("user_id = ? and (accepted is null or accepted = false)", @user.id)
+        shares.each do |share|
+            project = Project.find_by_id(share.project_id)
+            if project
+                @projects_awaiting_acceptance.push({
+                    name: project.name,
+                    share_code: share.code
+                })
+            end
+        end
+        @projects_awaiting_acceptance
     end
 
     def show
@@ -96,8 +109,10 @@ class ProjectsController < ApplicationController
                         new_project = Project.new(:name => project.name, :user_id => @user.id, :owner => false, :code => project.code)                        
                         new_project.save
 
+                        share.update(:accepted => true)
+
                         repo = GitRepo.new(project.upstream_path)
-                        repo.clone_to(new_project.path)
+                        repo.fork_to(new_project.path)
                     end
 
                     redirect_to projects_path, notice: 'New Project Added'
@@ -148,9 +163,27 @@ class ProjectsController < ApplicationController
         end
     end
 
-    def view_diff
-        upstream_repo = GitRepo.new(@project.upstream_path)
-        @diff = upstream_repo.diff(@project.path)
+    def pull
+        repo = GitRepo.new(@project.path)
+        repo.fetch_origin
+        @diff = repo.origin_to_local_diff()
+    end
+
+    def push
+        repo = GitRepo.new(@project.path)
+        repo.push_upstream
+        redirect_to project_path(@project)
+    end
+
+    def merge
+        repo = GitRepo.new(@project.path)
+        
+        c = repo.merge_in_upstream
+        if c == true
+            redirect_to project_path(@project) 
+        else
+            @conflicts = c
+        end
     end
 
 end
