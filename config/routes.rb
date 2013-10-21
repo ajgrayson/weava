@@ -32,7 +32,7 @@ Weava::Application.routes.draw do
     member do
       get 'share'
       post 'create_share'
-      get 'pull'
+      get 'compare'
       get 'push'
       get 'merge'
     end

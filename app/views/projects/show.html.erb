@@ -1,13 +1,15 @@
 <div>
-  <% if not @central_repo %>
   <div class="pull-left">
-    <a class="btn btn-default" data-action="pull" data-id="<%= @project.id %>" href="<%= pull_project_path(@project) %>" title="Pull down changes from upstream"><i class="icon-refresh"></i> Sync</a>
+    <a href="<%= project_path(@project) %>" class="btn btn-default <%= @central_repo ? "" : "active" %>"><i class="icon-code-fork"></i> My Copy</a>
+    vs
+    <a href="<%= project_central_path(@project) %>" class="btn btn-default <%= @central_repo ? "active" : "" %>"><i class="icon-cloud"></i> Master</a>
   </div>
+
+  <% if not @central_repo %>
+    <div class="pull-right">
+      <a class="btn btn-info" data-action="pull" data-id="<%= @project.id %>" href="<%= compare_project_path(@project) %>" title="Pull down changes from upstream">Compare</a>
+    </div>
   <% end %>
-  <ul class="nav nav-pills pull-right">
-    <li class="<%= @central_repo ? "" : "active" %>"><a href="<%= project_path(@project) %>"><i class="icon-code-fork"></i> Fork</a></li>
-    <li class="<%= @central_repo ? "active" : "" %>"><a href="<%= project_central_path(@project) %>"><i class="icon-cloud"></i> Central</a></li>
-  </ul>
   <div class="clearfix"></div>
 </div>
 
@@ -73,9 +75,8 @@
 <% end %>
 
 <% if not @central_repo %>
-  <%= link_to 'Edit', edit_project_path(@project), :class => 'btn btn-default' %>
-
   <% if @project.owner %>
+    <%= link_to 'Edit', edit_project_path(@project), :class => 'btn btn-default' %>
     <%= link_to 'Share', share_project_path(@project), :class => 'btn btn-default' %>
   <% end %>
 <% end %>

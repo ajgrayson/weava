@@ -19,7 +19,7 @@
     ],
     "user": [
         {
-            "text": "Profile",
+            "text": "{username}",
             "match": ["/profile", "/users"],
             "path": "/profile",
             "icon": "user"

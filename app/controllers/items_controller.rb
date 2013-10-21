@@ -79,10 +79,10 @@ class ItemsController < ApplicationController
             redirect_to project_path(@project)
         end
     end
-
+    
     def show
         oid = params[:id]
-
+        
         view_central = params[:view_central]
         if view_central == "true"
             repo = GitRepo.new(@project.upstream_path)

@@ -34,13 +34,13 @@ class GitRepo
         # ourselves. not sure why but this seems to work. otherwise
         # any files already in the repo get blown away if we add another
         # file...
-        repo.init_index
+        repo.update_index
 
         repo
     end
 
     # sets the repo index to the state of the current tree
-    def init_index
+    def update_index
         tree = @repo.lookup(@repo.head.target).tree
         @repo.index.read_tree(tree)
         @repo.index.write
@@ -240,45 +240,94 @@ class GitRepo
         remote = Rugged::Remote.lookup(@repo, 'origin')
         remote.connect(:fetch) do |r|
             r.download
+            r.update_tips!
         end
-        remote.update_tips!
     end
 
     # push the current master to the remote
-    def push_upstream()
-        @repo.push('origin', ['refs/heads/master'])
+    def push_to_origin(user)
+        diff = origin_to_local_diff
+
+        if diff[:diff].length > 0
+            @repo.push('origin', ["+refs/heads/master"])
+        end
+
+        fetch_origin()
     end
 
-    def merge_in_upstream
+    def is_fast_forward_to_origin()
+
+        # a fast forward is when there are no
+        # deltas between the local and the origin
+        # but there are deltas between the origin
+        # and the base
+
         origin_ref = Rugged::Reference.lookup(@repo, 'refs/remotes/origin/master')
 
-        src_tree = @repo.lookup(origin_ref.target).tree
-        des_tree = @repo.lookup(@repo.head.target).tree
+        local = @repo.lookup(@repo.head.target)
+        origin = @repo.lookup(origin_ref.target)
+
+        merge_base = @repo.merge_base(@repo.head.target, origin_ref.target)
         
-        index = src_tree.merge(des_tree)
+        base = @repo.lookup(merge_base)
 
-        if index.conflicts
-            conflicts = []
-            index.conflicts.each do |c|
-                conflicts.push({
-                    :our_path => c[:ours][:path],
-                    :their_path => c[:theirs][:path]
-                })
-            end
+        diff_local = base.tree.diff(local.tree)
 
-            return conflicts
+        diff_origin = base.tree.diff(origin.tree)
+        
+        return (diff_local.size == 0 and diff_origin.size > 0)
+    end
+
+    def merge_from_origin(user)
+        origin_ref = Rugged::Reference.lookup(@repo, 'refs/remotes/origin/master')
+
+        local = @repo.lookup(@repo.head.target)
+        origin = @repo.lookup(origin_ref.target)
+
+        merge_base = @repo.merge_base(@repo.head.target, origin_ref.target)
+        
+        base = @repo.lookup(merge_base)
+
+        if is_fast_forward_to_origin()
+
+            # do a fast-forward
+            repo.head.set_target(origin_ref.target)
+
+            update_index()
+
+            return true
         else
-            options = {}
-            options[:tree] = index.write_tree(@repo)
-            options[:author] = { :email => user.email, :name => user.name, :time => Time.now }
-            options[:committer] = { :email => user.email, :name => user.name, :time => Time.now }
-            options[:message] ||= "Merged in origin changes"
-            options[:parents] = repo.empty? ? [] : [ @repo.head.target ].compact
-            options[:update_ref] = "HEAD"
 
-            Rugged::Commit.create(@repo, options)
+            index = local.tree.merge(origin.tree, base.tree)
+            
+            if index.conflicts?
+                conflicts = []
+                index.conflicts.each do |c|
+                    conflicts.push({
+                        :our_path => c[:ours][:path],
+                        :their_path => c[:theirs][:path]
+                    })
+                end
 
-            return true 
+                return conflicts
+            else
+                # this should only be requied if there were merges
+                # e.g. if a remote file was added then why are we 
+                # making a commit rather than a fast forward???
+                options = {}
+                options[:tree] = index.write_tree(@repo)
+                options[:author] = { :email => user.email, :name => user.name, :time => Time.now }
+                options[:committer] = { :email => user.email, :name => user.name, :time => Time.now }
+                options[:message] ||= "Merged in origin changes"
+                options[:parents] = repo.empty? ? [] : [ @repo.head.target ].compact
+                options[:update_ref] = "HEAD"
+
+                Rugged::Commit.create(@repo, options)
+
+                update_index()
+
+                return true 
+            end
         end
     end
 
@@ -294,7 +343,8 @@ class GitRepo
         # old tree
         dst_tree = @repo.lookup(@repo.head.target).tree
         
-        diff = dst_tree.diff(ot_tree)
+        diff = ot_tree.diff(dst_tree)
+        #diff = @repo.index.diff(ot_tree)
         diff_list = []
         diff.each_delta do |diff|
             diff_list.push({
@@ -304,39 +354,33 @@ class GitRepo
                 similarity: diff.similarity
             })
         end
-        return diff_list
+
+        return {
+            :diff => diff_list,
+            :patch => diff.patch
+        }
     end
 
-    # use before ??
-    # local is new 
-    # origin is old
-    def local_to_origin_diff()
+    private
 
-    end
+        def merge_local_to_origin(user)
+            origin_ref = Rugged::Reference.lookup(@repo, 'refs/remotes/origin/master')
 
-    def diff_upstream()
-        upstream_ref = Rugged::Reference.lookup(@repo, 'refs/remotes/origin/master')
+            des_tree = @repo.lookup(origin_ref.target).tree
+            src_tree = @repo.lookup(@repo.head.target).tree
+            
+            index = src_tree.merge(des_tree)
 
-        #mb_oid = @rep.merge_base(@repo.head.target, upstream_ref)
+            options = {}
+            options[:tree] = index.write_tree(@repo)
+            options[:author] = { :email => user.email, :name => user.name, :time => Time.now }
+            options[:committer] = { :email => user.email, :name => user.name, :time => Time.now }
+            options[:message] ||= "Merged in origin changes"
+            options[:parents] = repo.empty? ? [] : [ origin_ref.target ].compact
+            options[:update_ref] = "refs/remotes/origin/master"
 
-        # old tree
-        ust_tree = @repo.lookup(upstream_ref.target).tree
-
-        # new tree
-        dst_tree = @repo.lookup(@repo.head.target).tree
-        
-        diff = ust_tree.diff(dst_tree)
-        diff_list = []
-        diff.each_delta do |diff|
-            diff_list.push({
-                old_path: diff.old_file[:path],
-                new_path: diff.new_file[:path],
-                status: diff.status,
-                similarity: diff.similarity
-            })
+            Rugged::Commit.create(@repo, options)
         end
-        return diff_list
-    end
 
 end
 

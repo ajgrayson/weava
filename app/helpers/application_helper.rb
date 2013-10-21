@@ -27,6 +27,10 @@ module ApplicationHelper
             icon_html = icon ? "<i class=\"icon-#{icon}\"></i> " : ""
             active = ""
 
+            if current_user
+                text = text.sub '{username}', current_user.name
+            end
+
             if match
                 if match.kind_of?(Array)
                     match.each do |mtc|

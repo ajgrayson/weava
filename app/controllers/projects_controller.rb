@@ -156,31 +156,40 @@ class ProjectsController < ApplicationController
     def update
         project = Project.find_by_id(params[:id])
 
-        if(project.update(params[:project].permit(:name))) 
+        if project.update(params[:project].permit(:name))
             redirect_to :projects
         else
             render 'edit'
         end
     end
 
-    def pull
+    def compare
         repo = GitRepo.new(@project.path)
         repo.fetch_origin
-        @diff = repo.origin_to_local_diff()
+        diff = repo.origin_to_local_diff()
+        @diff = diff[:diff]
+        @patch = diff[:patch]
+        @is_fast_forward = repo.is_fast_forward_to_origin()
     end
 
     def push
         repo = GitRepo.new(@project.path)
-        repo.push_upstream
+        repo.push_to_origin(@user)
         redirect_to project_path(@project)
     end
 
     def merge
         repo = GitRepo.new(@project.path)
         
-        c = repo.merge_in_upstream
+        c = repo.merge_from_origin(@user)
         if c == true
-            redirect_to project_path(@project) 
+            diff = repo.origin_to_local_diff()
+
+            if diff[:diff].length > 0
+                redirect_to '/projects/' + @project.id.to_s + '/compare'
+            else
+                redirect_to project_path(@project)
+            end
         else
             @conflicts = c
         end
