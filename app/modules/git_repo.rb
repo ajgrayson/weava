@@ -314,12 +314,23 @@ class GitRepo
                 # this should only be requied if there were merges
                 # e.g. if a remote file was added then why are we 
                 # making a commit rather than a fast forward???
+
                 options = {}
                 options[:tree] = index.write_tree(@repo)
-                options[:author] = { :email => user.email, :name => user.name, :time => Time.now }
-                options[:committer] = { :email => user.email, :name => user.name, :time => Time.now }
+                options[:author] = { 
+                    :email => user.email, 
+                    :name => user.name, 
+                    :time => Time.now 
+                }
+                options[:committer] = { 
+                    :email => user.email, 
+                    :name => user.name, 
+                    :time => Time.now 
+                }
                 options[:message] ||= "Merged in origin changes"
-                options[:parents] = repo.empty? ? [] : [ @repo.head.target ].compact
+                options[:parents] = repo.empty? ? [] : [ 
+                    @repo.head.target, origin_ref.target
+                ].compact
                 options[:update_ref] = "HEAD"
 
                 Rugged::Commit.create(@repo, options)

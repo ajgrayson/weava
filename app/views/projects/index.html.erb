@@ -39,19 +39,22 @@
         <strong><i class="icon-group"></i> Shared Projects</strong>
       </div>
 
-        <% if @shared_projects and @shared_projects.length > 0 %>
-
           <div class="list-group">  
 
-          <% @shared_projects.each do |project| %>
+          <% if @shared_projects.length > 0 %>
 
-            <a href="<%= project_path(project) %>" class="list-group-item">
-              <i class="icon-briefcase"></i> <%= project.name %>
-              <i class="icon-chevron-right pull-right"></i>
-              <div class="clearfix"></div>
-            </a>
+            <% @shared_projects.each do |project| %>
+
+              <a href="<%= project_path(project) %>" class="list-group-item">
+                <i class="icon-briefcase"></i> <%= project.name %>
+                <i class="icon-chevron-right pull-right"></i>
+                <div class="clearfix"></div>
+              </a>
 
             <% end %>
+          <% end %>
+
+          <% if @projects_awaiting_acceptance.length > 0 %>
 
             <% @projects_awaiting_acceptance.each do |project| %>
 
@@ -64,11 +67,7 @@
             <% end %>
             
           </div>
-
-        <% else %>
-        <div class="panel-body">
-          <i>You don't have any shared projects yet</i>
-        </div>
+          
         <% end %>
 
     </div>

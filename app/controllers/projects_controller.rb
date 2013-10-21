@@ -45,7 +45,7 @@ class ProjectsController < ApplicationController
         else
             repo = GitRepo.new(@project.path)
         end
-
+        
         @history = repo.get_commit_walker()
         @items = repo.get_current_tree(@project.id)
     end
