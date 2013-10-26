@@ -1,8 +1,6 @@
 require 'securerandom'
 
 class Project < ActiveRecord::Base
-    has_one :user
-
     validates :name , presence: true
 
     def path

@@ -1,0 +1,98 @@
+-# breadcrumb :projects
+
+.page-header
+  %h1.pull-left Projects
+  %div
+    %a.pull-right.btn.btn-primary{href: new_project_path}
+      %i.icon-plus
+      New Project
+  .clearfix
+
+.list-group
+  - if @projects.any?
+    - count = 0
+    - @projects.each do |project|
+      - if project[:owned]
+        %a.list-group-item{href: project_path(project[:id])}
+          %i.icon.icon-briefcase
+          = project[:name]
+          %span.muted (Created by you)
+          %i.icon-chevron-right.pull-right
+          .clearfix
+      - elsif not project[:pending]
+        %a.list-group-item{href: project_path(project[:id])}
+          %i.icon.icon-group.pull-left
+          = project[:name]
+          %span.muted 
+            = '(Created by ' + project[:username] + ')'
+          %i.icon-chevron-right.pull-right
+          .clearfix
+      - else
+        .list-group-item
+          %i.icon.icon-group.pull-left
+          = project[:name]
+          %span.muted 
+            = '(Shared by ' + project[:username] + ')'
+          %span.label.label-info Pending Acceptance
+          %a.pull-right{href: project_share_accept_path(project[:share_code])}
+            %i.icon-ok
+            Accept
+          .clearfix
+  - else
+    %span
+      %i You don't have any projects
+
+
+  -# .col-md-6
+  -#   .panel.panel-success
+  -#     .panel-heading
+  -#       %strong My Projects
+        
+  -#     - if @projects and @projects.length > 0
+  -#       .list-group
+  -#         - @projects.each do |project|
+  -#           %a.list-group-item{href: project_path(project)}
+  -#             %i.icon-briefcase
+  -#             = project.name
+  -#             (#{project.code.slice(0,11) + "..."})
+  -#             - if project.conflict?
+  -#               %span.label.label-warning Conflicts
+  -#             %i.icon-chevron-right.pull-right
+  -#             .clearfix
+  -#     - else
+  -#       .panel-body
+  -#         %i You don't have any projects yet
+
+  -# .col-md-6
+  -#   .panel.panel-warning
+  -#     .panel-heading
+  -#       %strong
+  -#         %i.icon-group
+  -#         Shared Projects
+
+  -#     .list-group
+  -#       - if @shared_projects.length > 0
+  -#         - @shared_projects.each do |project|
+  -#           %a.list-group-item{href: project_path(project)}
+  -#             %i.icon-briefcase
+  -#             = project.name
+  -#             - if project.conflict?
+  -#               %span.label.label-warning Conflicts
+  -#             %i.icon-chevron-right.pull-right
+  -#             .clearfix
+
+  -#       - if @projects_awaiting_acceptance.length > 0
+  -#         - @projects_awaiting_acceptance.each do |project|
+  -#           .list-group-item
+  -#             %i.icon-question-sign
+  -#             = project[:name]
+  -#             (Awaiting acceptance)
+  -#             %a.pull-right{href: project_share_accept_path(project[:share_code])}
+  -#               %i.icon-ok
+  -#               Accept
+  -#             .clearfix
+
+  -#       - if @shared_projects.length == 0 and @projects_awaiting_acceptance.length == 0
+  -#         .list-group-item
+  -#           %i You don't have any shared projects yet.
+

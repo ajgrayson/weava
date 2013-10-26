@@ -6,6 +6,39 @@
 *= require codemirror
 */
 
+.brick {
+  background-color: #d9edf7;
+  border-color: #bce8f1;
+  color: #666;
+  text-decoration: none;
+  border-radius: 6px;
+  min-height: 40px;
+  font-size: 20px;
+  padding: 10px;
+  cursor: pointer;
+  margin-top: 5px;
+  .icon-chevron-right {
+    margin-top: 4px;
+    color: #ccc;
+  }
+  &:hover {
+    text-decoration: none;
+    color: #666;
+    .icon-chevron-right {
+      color: #333;
+    }
+  }
+  &.shared {
+    background-color: #d9edf7;
+    border-color: #bce8f1;
+  }
+  &.pending {
+    background-color: #fcf8e3;
+    border-color: #fbeed5;
+  }
+}
+
+
 /* ------------------------------------------
   CodeMirror
 ---------------------------------------------*/

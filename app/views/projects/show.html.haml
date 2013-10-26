@@ -1,0 +1,59 @@
+- breadcrumb :project, @project
+
+.page-header
+  %h1.pull-left 
+    = @project.name
+
+  .pull-right
+    - if not @central_repo
+      %a.btn.btn-success{href: new_project_item_path(@project.id)}
+        %i.icon-plus
+        New Item
+    .btn-group
+      %a{class: "btn btn-default #{@central_repo ? "" : "active"}", href: project_path(@project)}
+        %i.icon-code-fork
+        My Copy
+      %a{class: "btn btn-default #{@central_repo ? "active" : ""}", href: project_central_path(@project)}
+        %i.icon-cloud
+        Master
+
+    %a.btn.btn-info{"data-action" => "pull", "data-id" => @project.id, href: compare_project_path(@project), title: "Pull down changes from upstream"} 
+      %i.icon.icon-refresh
+      Sync
+  .clearfix
+
+  .list-group.space-top
+    - if @items && @items.length > 0
+      .list-group
+        - @items.each do |item|
+          - if item[:type] == :blob
+            %a.list-group-item{href: extended_project_item_path(item[:project_id], item[:id], @central_repo)}
+              %i.icon-file-text-alt
+              = item[:name]
+              %i.icon-chevron-right.pull-right
+              .clearfix
+    - else
+      .panel-body
+        %i You don't have any files yet
+- if @history
+  .panel.panel-default
+    .panel-heading
+      %h3.panel-title
+        %i.icon-time
+        Recent Activity
+    %table.table
+      %thead
+        %tr
+          %th Time
+          %th Author
+          %th Message
+      %tbody
+        - @history.each do |c|
+          %tr
+            %td= c.time
+            %td= c.author[:name]
+            %td= c.message
+- if not @central_repo
+  - if @project.owner
+    = link_to 'Edit', edit_project_path(@project), :class => 'btn btn-default'
+    = link_to 'Share', share_project_path(@project), :class => 'btn btn-default'

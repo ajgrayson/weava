@@ -19,13 +19,19 @@ class ProjectsController < ApplicationController
     end
 
     def index
-        @projects = Project.where("user_id = ? and owner = ?", 
-            @user.id, true)
+        @projects = []
 
-        @shared_projects = Project.where("user_id = ? AND owner = ?", 
-            @user.id, false)
-
-        @projects_awaiting_acceptance = []
+        my_projects = Project.where("user_id = ?", @user.id)
+        my_projects.each do |project|
+            @projects.push({
+                :id => project.id,
+                :name => project.name,
+                :username => @user.name,
+                :owned => project.owner,
+                :pending => false,
+                :share_code => nil
+            })
+        end
 
         shares = ProjectShare.where(
             "user_id = ? and (accepted is null or accepted = false)",
@@ -33,14 +39,18 @@ class ProjectsController < ApplicationController
 
         shares.each do |share|
             project = Project.find_by_id(share.project_id)
+            user = User.find_by_id(share.owner_id)
             if project
-                @projects_awaiting_acceptance.push({
-                    name: project.name,
-                    share_code: share.code
+                @projects.push({
+                    :id => project.id,
+                    :name => project.name,
+                    :username => user.name,
+                    :owned => false,
+                    :pending => true,
+                    :share_code => share.code
                 })
             end
         end
-        @projects_awaiting_acceptance
     end
 
     def show

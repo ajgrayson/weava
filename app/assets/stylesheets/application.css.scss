@@ -16,7 +16,7 @@
  */
 
 body {
-  /*padding-top: 50px;*/
+  text-rendering: optimizelegibility;
 }
 
 .navbar-brand.navbar-brand-weava {
@@ -26,18 +26,45 @@ body {
     }
 }
 
+.navbar-default {
+  background-color: #fafafa;
+}
+
 .navbar.navbar-weava {
-    /*margin-bottom: 0px;*/
+  margin-bottom: 10px;
 }
 
 form.inline-form {
   display: inline-block;
 }
 
-/*@font-face {
-  font-family: 'FontAwesome';
-  src: url('<%= asset_path("fontawesome-webfont.eot?v=3.2.1") %>');
-  src: url('<%= asset_path("fontawesome-webfont.eot?#iefix&v=3.2.1") %>) format('embedded-opentype'), url('<%= asset_path("fontawesome-webfont.woff?v=3.2.1") %>) format('woff'), url('<%= asset_path("fontawesome-webfont.ttf?v=3.2.1") %>) format('truetype'), url('<%= asset_path("fontawesome-webfont.svg#fontawesomeregular?v=3.2.1") %>) format('svg');
-  font-weight: normal;
-  font-style: normal;
-}*/
+/* bootstrap breadcrumb overrides */
+ol.breadcrumb {
+  padding: 0px;
+  border-radius: 0px;
+  margin-bottom: 10px;
+  background-color: transparent;
+}
+
+div.page-header {
+  margin: 0px;
+  border-bottom: 0px;
+  h1 {
+    margin: 0px;
+    font-size: 30px;
+    font-family: Opensans, sans-serif;
+  }
+}
+
+div.row {
+  margin-right: 0px;
+  margin-left: 0px;
+}
+
+.muted {
+  color: #bbb;
+}
+
+.space-top {
+  margin-top: 10px;
+}

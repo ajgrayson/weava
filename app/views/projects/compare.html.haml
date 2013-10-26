@@ -1,0 +1,46 @@
+- breadcrumb :project_compare, @project
+
+.page-header
+  %h1.pull-left 
+    - if @diff.length > 0
+      - if not @in_sync
+        Changes to merge
+      - else
+        You're up to date
+    - else
+      You're in sync!
+
+  - if @diff.length > 0
+    .pull-right
+      - if not @in_sync
+        %a.btn.btn-primary{"data-action" => "push", "data-id" => @project.id, href: merge_project_path(@project), title: "Merge in changes from upstream"}
+          %i.icon-arrow-down
+          Merge
+      - else
+        %a.btn.btn-success{"data-action" => "push", "data-id" => @project.id, href: push_project_path(@project), title: "Push changes to upstream"}
+          %i.icon-arrow-up
+          Push
+
+  .clearfix
+
+- if @diff.length > 0
+  .panel.panel-default
+    .panel-heading
+      %h3.panel-title
+        Differences
+    %table.table
+      %thead
+        %tr
+          %td Old Path
+          %td New Path
+          %td Similarity
+          %td Status
+      %tbody
+        - @diff.each do |diff|
+          %tr
+            %td= diff[:old_path]
+            %td= diff[:new_path]
+            %td= diff[:similarity]
+            %td= diff[:status]
+
+= link_to 'Back to Project', project_path(@project), :class => 'btn'

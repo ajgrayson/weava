@@ -1,0 +1,61 @@
+!!!
+%html
+  %head
+    %title Weava
+    %meta{content: "IE=Edge", "http-equiv" => "X-UA-Compatible"}/
+    
+    = stylesheet_link_tag "application", media: "all", "data-turbolinks-track" => true
+    = csrf_meta_tags
+
+    %script{type:'text/javascript'}
+      :plain
+        var currentUser = null;
+
+    %script{type: 'text/javascript'}
+      - if @user
+        currentUser = "#{@user.email}";
+
+  %body
+
+    .navbar.navbar-default.navbar-weava{role: "navigation"}
+      .container
+        .navbar-header
+          %button.navbar-toggle{"data-target" => ".navbar-collapse", "data-toggle" => "collapse", type: "button"}
+            %span.icon-bar
+            %span.icon-bar
+            %span.icon-bar
+          %a.navbar-brand.navbar-brand-weava{href: "/"}
+            %img{src: asset_path('logo-small.png')}/
+        .collapse.navbar-collapse
+          %ul.nav.navbar-nav= generate_navigation('main')
+          %ul.nav.navbar-nav.pull-right= generate_navigation('user')
+
+    .container
+      - breadcrumbs do |links|
+
+        - if links.any?
+          %ol.breadcrumb
+            - links.take(links.length - 1).each do |link|
+              %li= link_to link.text, link.url
+
+      - if flash[:notice]
+        .alert.alert-info
+          %button.close{"aria-hidden" => "true", "data-dismiss" => "alert", type: "button"} ×
+          = flash[:notice]
+
+      = yield
+
+      %hr/
+
+      %footer
+        %p.pull-right
+          %a{href: "#"} Back to top
+        %p
+          \© 2013 Weava Ltd ·
+          %a{href: "#"} Privacy
+          \·
+          %a{href: "#"} Terms
+
+    = javascript_include_tag "application", "data-turbolinks-track" => true
+
+    %script{type: 'text/javascript', src: "https://login.persona.org/include.js"}
