@@ -27,7 +27,7 @@ module ApplicationHelper
             icon_html = icon ? "<i class=\"icon-#{icon}\"></i> " : ""
             active = ""
 
-            if current_user
+            if current_user and current_user.name
                 text = text.sub '{username}', current_user.name
             end
 

@@ -1,8 +1,9 @@
 require 'securerandom'
 
 class Project < ActiveRecord::Base
+    has_one :user
+
     validates :name , presence: true
-    # after_initialize :init
 
     def path
         user_path = Rails.application.config.git_user_path
