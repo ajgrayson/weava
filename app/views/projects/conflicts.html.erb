@@ -12,8 +12,6 @@
         There <%= @conflicts.length > 1 ? "are " + @conflicts.length.to_s + " conflicts" : "is one conflict" %> with the recent merge that need to be resolved. Please open up <%= @conflicts.length > 1 ? "each" : "the" %> conflict listed below and resolve it. Once all conflicts have been resolved you will be able to continue working on the project.
       </div>  
 
-      <% @conflicts.each do |c| %>
-      
       <div class="list-group">  
 
         <% @conflicts.each do |c| %>
@@ -27,8 +25,6 @@
       
       </div>
     
-      <% end %>
-
     <% else %>
 
       <div class="panel-body">

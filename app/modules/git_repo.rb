@@ -46,15 +46,6 @@ class GitRepo
         @repo.index.write
     end
 
-    def get_commit_walker()
-        if !@repo.empty?
-            walker = Rugged::Walker.new(@repo)
-            walker.sorting(Rugged::SORT_TOPO)
-            walker.push(@repo.head.target)
-            return walker
-        end
-    end
-
     def get_current_tree(project_id)
         if !@repo.empty?
             commit = @repo.lookup(@repo.head.target)
@@ -217,19 +208,21 @@ class GitRepo
 
     # Get a walker to list out the history
     # of commits in a repo
-    def get_repo_commit_walker()
+    def get_commit_walker()
+        history = []
         if !@repo.empty?
             walker = Rugged::Walker.new(repo)
             walker.sorting(Rugged::SORT_TOPO)
             walker.push(@repo.head.target)
 
-            walker
+            history = walker.take(5).to_a
         end
+        history
     end
 
     def get_file_history(oid) 
         file = get_file(oid)
-        walker = get_repo_commit_walker()
+        walker = get_commit_walker()
 
         history = []
         uniquecommits = {}
@@ -252,7 +245,7 @@ class GitRepo
                 end
             end
         end
-        history
+        history.take(5)
     end
 
     def get_blob(oid)
@@ -306,6 +299,16 @@ class GitRepo
         diff_origin = base.tree.diff(origin.tree)
         
         return (diff_local.size == 0 and diff_origin.size > 0)
+    end
+
+    def in_sync()
+        origin_ref = Rugged::Reference.lookup(@repo, 
+            'refs/remotes/origin/master')
+
+        merge_base_oid = @repo.merge_base(@repo.head.target, 
+            origin_ref.target)
+
+        merge_base_oid == origin_ref.target
     end
 
     def merge_from_origin(user)
@@ -458,16 +461,37 @@ class GitRepo
 
             conflict = conflicts[0]
 
-            blob = Rugged::Object.lookup(@repo, conflict[:ours][:oid])
-            conflict[:ours][:content] = blob.content
+            blob_ours = Rugged::Object.lookup(@repo, conflict[:ours][:oid])
+            conflict[:ours][:content] = blob_ours.content
 
-            blob = Rugged::Object.lookup(@repo, conflict[:theirs][:oid])
-            conflict[:theirs][:content] = blob.content
+            blob_theirs = Rugged::Object.lookup(@repo, conflict[:theirs][:oid])
+            conflict[:theirs][:content] = blob_theirs.content
+
+            patch = blob_ours.diff(blob_theirs)
+            conflict[:patch] = patch
+            conflict[:patch_content] = flatten_patch(blob_ours.content, patch)
 
         end
 
         conflict
 
+    end
+
+    def flatten_patch(original, patch)
+        original_lines = original.lines.map(&:chomp)
+        
+        patch.each_hunk do |hunk|
+            hunk.each_line do |line|
+                if line.line_origin == :addition
+                    original_lines[line.new_lineno-1] = line.content
+                end
+
+                if line.line_origin == :deletion
+                    #original_lines[line.old_lineno-1] = ""
+                end
+            end
+        end
+        content = original_lines.join("\n")
     end
 
     def resolve_conflict(id, content)

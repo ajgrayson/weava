@@ -18,7 +18,7 @@ class Project < ActiveRecord::Base
         # Only do this when creating a new project.
         # In all other situations this would be loaded from the db.
         if not self.code
-            self.code = SecureRandom.uuid            
+            self.code = SecureRandom.uuid
         end
     end
 end

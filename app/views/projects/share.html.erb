@@ -15,7 +15,9 @@
 
     <div class="form-group">
         <%= label_tag 'With' %>
-        <%= text_field_tag "email", "", :class => 'form-control', :placeholder => 'Email' %>
+        <div>
+        <%= text_field_tag "email", "", :class => 'form-control', :placeholder => 'Email', :autocomplete => "off" %>
+        </div>
     </div>
 
     <div class="form-group">

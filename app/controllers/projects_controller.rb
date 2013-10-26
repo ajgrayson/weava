@@ -192,6 +192,7 @@ class ProjectsController < ApplicationController
         @diff = diff[:diff]
         @patch = diff[:patch]
         @is_fast_forward = repo.is_fast_forward_to_origin()
+        @in_sync = repo.in_sync
     end
 
     def push
