@@ -30,6 +30,10 @@ body {
     /*margin-bottom: 0px;*/
 }
 
+form.inline-form {
+  display: inline-block;
+}
+
 /*@font-face {
   font-family: 'FontAwesome';
   src: url('<%= asset_path("fontawesome-webfont.eot?v=3.2.1") %>');

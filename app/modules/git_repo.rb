@@ -30,10 +30,10 @@ class GitRepo
 
         repo = GitRepo.new(path)
 
-        # after a clone it seems that we need to init the initial index
-        # ourselves. not sure why but this seems to work. otherwise
-        # any files already in the repo get blown away if we add another
-        # file...
+        # after a clone it seems that we need to init the 
+        # initial index ourselves. not sure why but this 
+        # seems to work. otherwise any files already in the 
+        # repo get blown away if we add another file...
         repo.update_index
 
         repo
@@ -102,15 +102,25 @@ class GitRepo
             oid = @repo.write(content, :blob)
 
             index = @repo.index
-            index.add(:path => filename, :oid => oid, :mode => 0100644)
+            index.add(
+                :path => filename, 
+                :oid => oid, 
+                :mode => 0100644)
             index.write
             
             options = {}
             options[:tree] = index.write_tree(@repo)
-            options[:author] = { :email => user.email, :name => user.name, :time => Time.now }
-            options[:committer] = { :email => user.email, :name => user.name, :time => Time.now }
+            options[:author] = { 
+                :email => user.email, 
+                :name => user.name, 
+                :time => Time.now }
+            options[:committer] = { 
+                :email => user.email, 
+                :name => user.name, 
+                :time => Time.now }
             options[:message] ||= "Added item " + filename
-            options[:parents] = repo.empty? ? [] : [ @repo.head.target ].compact
+            options[:parents] = repo.empty? ? [] : [ 
+                @repo.head.target ].compact
             options[:update_ref] = "HEAD"
 
             Rugged::Commit.create(@repo, options)
@@ -126,7 +136,10 @@ class GitRepo
         file = tree.get_entry_by_oid(oid)
         index = @repo.index
 
-        index.add(:path => file[:name], :oid => new_oid, :mode => 0100644)
+        index.add(
+            :path => file[:name], 
+            :oid => new_oid, 
+            :mode => 0100644)
         index.write
 
         commit_message = message
@@ -136,10 +149,17 @@ class GitRepo
 
         options = {}
         options[:tree] = index.write_tree(@repo)
-        options[:author] = { :email => user.email, :name => user.name, :time => Time.now }
-        options[:committer] = { :email => user.email, :name => user.name, :time => Time.now }
+        options[:author] = { 
+            :email => user.email, 
+            :name => user.name, 
+            :time => Time.now }
+        options[:committer] = { 
+            :email => user.email, 
+            :name => user.name, 
+            :time => Time.now }
         options[:message] ||= commit_message
-        options[:parents] = repo.empty? ? [] : [ @repo.head.target ].compact
+        options[:parents] = repo.empty? ? [] : [ 
+            @repo.head.target ].compact
         options[:update_ref] = "HEAD"
 
         Rugged::Commit.create(@repo, options)
@@ -166,10 +186,17 @@ class GitRepo
 
         options = {}
         options[:tree] = index.write_tree(@repo)
-        options[:author] = { :email => user.email, :name => user.name, :time => Time.now }
-        options[:committer] = { :email => user.email, :name => user.name, :time => Time.now }
+        options[:author] = { 
+            :email => user.email, 
+            :name => user.name, 
+            :time => Time.now }
+        options[:committer] = { 
+            :email => user.email, 
+            :name => user.name, 
+            :time => Time.now }
         options[:message] ||= commit_message
-        options[:parents] = repo.empty? ? [] : [ @repo.head.target ].compact
+        options[:parents] = repo.empty? ? [] : [ 
+            @repo.head.target ].compact
         options[:update_ref] = "HEAD"
 
         Rugged::Commit.create(@repo, options)
@@ -210,7 +237,8 @@ class GitRepo
         walker.each do |commit|
             tree = commit.tree
             tree.each do |leaf|
-                if leaf[:name] == file[:name] and not uniquecommits[leaf[:oid]]
+                if leaf[:name] == file[:name] and not 
+                    uniquecommits[leaf[:oid]]
                     
                     uniquecommits[leaf[:oid]] = true
                     history.push({
@@ -262,12 +290,14 @@ class GitRepo
         # but there are deltas between the origin
         # and the base
 
-        origin_ref = Rugged::Reference.lookup(@repo, 'refs/remotes/origin/master')
+        origin_ref = Rugged::Reference.lookup(@repo, 
+            'refs/remotes/origin/master')
 
         local = @repo.lookup(@repo.head.target)
         origin = @repo.lookup(origin_ref.target)
 
-        merge_base = @repo.merge_base(@repo.head.target, origin_ref.target)
+        merge_base = @repo.merge_base(@repo.head.target, 
+            origin_ref.target)
         
         base = @repo.lookup(merge_base)
 
@@ -279,19 +309,21 @@ class GitRepo
     end
 
     def merge_from_origin(user)
-        origin_ref = Rugged::Reference.lookup(@repo, 'refs/remotes/origin/master')
+        origin_ref = Rugged::Reference.lookup(@repo, 
+            'refs/remotes/origin/master')
 
         local = @repo.lookup(@repo.head.target)
         origin = @repo.lookup(origin_ref.target)
 
-        merge_base = @repo.merge_base(@repo.head.target, origin_ref.target)
-        
+        merge_base = @repo.merge_base(@repo.head.target, 
+            origin_ref.target)
+
         base = @repo.lookup(merge_base)
 
         if is_fast_forward_to_origin()
 
             # do a fast-forward
-            repo.head.set_target(origin_ref.target)
+            @repo.head.set_target(origin_ref.target)
 
             update_index()
 
@@ -299,17 +331,16 @@ class GitRepo
         else
 
             index = local.tree.merge(origin.tree, base.tree)
-            
+
             if index.conflicts?
-                conflicts = []
-                index.conflicts.each do |c|
-                    conflicts.push({
-                        :our_path => c[:ours][:path],
-                        :their_path => c[:theirs][:path]
-                    })
+                index.conflicts.each do |cf|
+                    @repo.index.remove(cf[:ours][:path], 0)
+                    @repo.index.conflict_add(cf)
                 end
 
-                return conflicts
+                @repo.index.write
+
+                return false
             else
                 # this should only be requied if there were merges
                 # e.g. if a remote file was added then why are we 
@@ -342,11 +373,17 @@ class GitRepo
         end
     end
 
+    def undo_merge
+        @repo.index.conflict_cleanup
+        update_index
+    end
+
     # use before merging in from origin
     # origin is new
     # local is old
     def origin_to_local_diff()
-        origin_ref = Rugged::Reference.lookup(@repo, 'refs/remotes/origin/master')
+        origin_ref = Rugged::Reference.lookup(@repo, 
+            'refs/remotes/origin/master')
 
         # new tree
         ot_tree = @repo.lookup(origin_ref.target).tree
@@ -372,10 +409,118 @@ class GitRepo
         }
     end
 
+    def has_conflicts
+        return @repo.index.conflicts?
+    end
+
+    def get_conflicts
+
+        conflicts = []
+
+        if @repo.index.conflicts?
+
+            @repo.index.conflicts.each do |conf|
+                ours = conf[:ours]
+                theirs = conf[:theirs]
+
+                if ours
+                    blob = Rugged::Object.lookup(@repo, conf[:ours][:oid])
+                    ours[:content] = blob.content 
+                end
+
+                if theirs
+                    blob = Rugged::Object.lookup(@repo, conf[:theirs][:oid])
+                    theirs[:content] = blob.content 
+                end
+
+                conflicts.push({
+                    :ours => ours,
+                    :theirs => theirs
+                })
+
+            end
+
+        end
+
+        conflicts
+    end
+
+    # TODO: fix this hack
+    def get_conflict(id)
+
+        conflict = {}
+
+        if @repo.index.conflicts?
+
+            conflicts = @repo.index.conflicts.select { |c|
+                c[:ours][:oid] == id
+            }
+
+            conflict = conflicts[0]
+
+            blob = Rugged::Object.lookup(@repo, conflict[:ours][:oid])
+            conflict[:ours][:content] = blob.content
+
+            blob = Rugged::Object.lookup(@repo, conflict[:theirs][:oid])
+            conflict[:theirs][:content] = blob.content
+
+        end
+
+        conflict
+
+    end
+
+    def resolve_conflict(id, content)
+
+        path = get_conflict(id)[:ours][:path]
+        oid = @repo.write(content, :blob)
+
+        @repo.index.add(
+            :path => path, 
+            :oid => oid, 
+            :mode => 0100644)
+
+        @repo.index.conflict_remove(path)
+
+        @repo.index.write
+
+    end
+
+    def commit_merge(user)
+        origin_ref = Rugged::Reference.lookup(@repo, 
+            'refs/remotes/origin/master')
+
+        commit_to_head(@repo, @repo.index, user, "Merged with origin", [ 
+                    @repo.head.target, origin_ref.target
+                ].compact)
+    end
+
     private
 
+        def commit_to_head(repo, index, user, message, parents)
+            options = {
+                :tree => index.write_tree(@repo),
+                :author => { 
+                    :email => user.email, 
+                    :name => user.name, 
+                    :time => Time.now 
+                },
+                :committer => {
+                    :email => user.email, 
+                    :name => user.name, 
+                    :time => Time.now 
+                    },
+                :message => message,
+                :parents => parents,
+                :update_ref => "HEAD"
+            }
+
+            Rugged::Commit.create(@repo, options)
+        end
+
         def merge_local_to_origin(user)
-            origin_ref = Rugged::Reference.lookup(@repo, 'refs/remotes/origin/master')
+            origin_ref = Rugged::Reference.lookup(@repo, 
+                'refs/remotes/origin/master')
 
             des_tree = @repo.lookup(origin_ref.target).tree
             src_tree = @repo.lookup(@repo.head.target).tree
@@ -384,10 +529,17 @@ class GitRepo
 
             options = {}
             options[:tree] = index.write_tree(@repo)
-            options[:author] = { :email => user.email, :name => user.name, :time => Time.now }
-            options[:committer] = { :email => user.email, :name => user.name, :time => Time.now }
+            options[:author] = { 
+                :email => user.email, 
+                :name => user.name, 
+                :time => Time.now }
+            options[:committer] = { 
+                :email => user.email, 
+                :name => user.name, 
+                :time => Time.now }
             options[:message] ||= "Merged in origin changes"
-            options[:parents] = repo.empty? ? [] : [ origin_ref.target ].compact
+            options[:parents] = repo.empty? ? [] : [ 
+                origin_ref.target ].compact
             options[:update_ref] = "refs/remotes/origin/master"
 
             Rugged::Commit.create(@repo, options)

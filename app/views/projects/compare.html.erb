@@ -1,11 +1,8 @@
 <div class="panel panel-default">
   <div class="panel-heading">
-    <h3 class="panel-title">Differences between <%= @project.name %> and its Origin</h3>
+    <h3 class="panel-title">Comparison<%= @is_fast_forward ? "(FF)" : "" %></h3>
   </div>
   <% if @diff.length > 0 %>
-    <div>
-    Is fastforward = <%= @is_fast_forward %>
-    </div>
     <table class="table">
       <thead>
         <tr>

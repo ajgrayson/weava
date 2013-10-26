@@ -1,0 +1,13 @@
+Plan to resolve conflicts
+
+- merge conflicts with repo index so they are stored
+- set conflict flag on users project record in db
+- while there is a conflict force the user to the conflicts screen
+- show the user a list of conflicted files
+- allow the user to select each conflict and go to the conflict resolution page
+- the user sees the current state and the other state
+- ideally here also show the diff so they can see the changes
+- the user is able to update their state as they please
+- the user can save the file which will update the repo index
+- when the user has updated all conflicts they are still shown the conflicts page because the flag is still set in the db
+- the user is shown a list of all the resolved changes and a big fat button to commit the changes

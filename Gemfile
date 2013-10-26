@@ -60,5 +60,7 @@ gem 'capistrano', group: :development
 
 gem 'thin'
 
+gem 'gretel'
+
 # Use debugger
 gem 'debugger', group: [:development, :test]

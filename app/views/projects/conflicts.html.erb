@@ -1,0 +1,50 @@
+<% breadcrumb :project_conflicts, @project %>
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Merge Conflicts to Resolve</h3>
+  </div>
+      
+
+    <% if @conflicts.length > 0 %>
+  
+      <div class="panel-body">
+        There <%= @conflicts.length > 1 ? "are " + @conflicts.length.to_s + " conflicts" : "is one conflict" %> with the recent merge that need to be resolved. Please open up <%= @conflicts.length > 1 ? "each" : "the" %> conflict listed below and resolve it. Once all conflicts have been resolved you will be able to continue working on the project.
+      </div>  
+
+      <% @conflicts.each do |c| %>
+      
+      <div class="list-group">  
+
+        <% @conflicts.each do |c| %>
+
+        <a href="<%= item_conflict_path(@project.id, c[:ours][:oid]) %>" class="list-group-item">
+          <%= c[:ours][:path] %>
+          <i class="icon-chevron-right pull-right"></i>
+        </a>
+    
+        <% end %>
+      
+      </div>
+    
+      <% end %>
+
+    <% else %>
+
+      <div class="panel-body">
+        <i>All conflicts have been resolved now. Click save to commit the merge.</i>
+      </div>
+
+    <% end %>
+
+</div>
+
+<%= form_tag({ :action => "undo_merge"}, { :class => "inline-form" }) do %>
+  <%= submit_tag "Undo Merge", :class => 'btn btn-primary' %>
+<% end -%>
+
+<% if @conflicts.length == 0 %>
+  <%= form_tag({:action => "save_merge"}, { :class => "inline-form" }) do %>
+      <%= submit_tag "Save", :class => 'btn btn-success' %>
+  <% end -%>
+<% end %>

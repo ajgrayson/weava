@@ -1,10 +1,22 @@
+<% breadcrumb :projects %>
+
 <div class="row">
+
+
+
+
+
+
   <div class="col-md-6">
 
     <div class="panel panel-default">
+
       <div class="panel-heading">
+
+
         <strong>My Projects</strong>
         <a href="<%= new_project_path %>" class="pull-right"><i class="icon-plus"></i> New</a>
+        
         <div class="clearfix"></div>
       </div>
 
@@ -15,7 +27,12 @@
           <% @projects.each do |project| %>
 
             <a href="<%= project_path(project) %>" class="list-group-item">
-              <i class="icon-briefcase"></i> <%= project.name %> (<%= project.code %>)
+              <i class="icon-briefcase"></i> <%= project.name %> (<%= project.code.slice(0,11) + "..." %>) 
+              
+              <% if project.conflict? %>
+                <span class="label label-warning">Conflicts</span>
+              <% end %> 
+              
               <i class="icon-chevron-right pull-right"></i>
               <div class="clearfix"></div>
             </a>
@@ -32,6 +49,7 @@
 
     </div>
   </div>
+
   <div class="col-md-6">
 
     <div class="panel panel-default">
@@ -46,7 +64,12 @@
             <% @shared_projects.each do |project| %>
 
               <a href="<%= project_path(project) %>" class="list-group-item">
-                <i class="icon-briefcase"></i> <%= project.name %>
+                <i class="icon-briefcase"></i> <%= project.name %> 
+
+                <% if project.conflict? %>
+                  <span class="label label-warning">Conflicts</span>
+                <% end %> 
+
                 <i class="icon-chevron-right pull-right"></i>
                 <div class="clearfix"></div>
               </a>
@@ -67,11 +90,23 @@
             <% end %>
             
           </div>
-          
+
         <% end %>
+
+        <% if @shared_projects.length == 0 and @projects_awaiting_acceptance.length == 0 %>
+          <div class="list-group-item">
+            <i>You don't have any shared projects yet.</i>
+          </div>
+          <% end %>
 
     </div>
 
   </div>
+
+
+
+
+
+
 
 </div>

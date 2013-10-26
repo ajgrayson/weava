@@ -19,11 +19,18 @@ class ProjectsController < ApplicationController
     end
 
     def index
-        @projects = Project.where("user_id = ? and owner = ?", @user.id, true)
-        @shared_projects = Project.where("user_id = ? AND owner = ?", @user.id, false)
+        @projects = Project.where("user_id = ? and owner = ?", 
+            @user.id, true)
+
+        @shared_projects = Project.where("user_id = ? AND owner = ?", 
+            @user.id, false)
 
         @projects_awaiting_acceptance = []
-        shares = ProjectShare.where("user_id = ? and (accepted is null or accepted = false)", @user.id)
+
+        shares = ProjectShare.where(
+            "user_id = ? and (accepted is null or accepted = false)",
+             @user.id)
+
         shares.each do |share|
             project = Project.find_by_id(share.project_id)
             if project
@@ -38,16 +45,19 @@ class ProjectsController < ApplicationController
 
     def show
         view_central = params[:view_central]
+        repo = GitRepo.new(@project.path)
 
         if view_central == "true"
             repo = GitRepo.new(@project.upstream_path)
             @central_repo = true
-        else
-            repo = GitRepo.new(@project.path)
         end
-        
-        @history = repo.get_commit_walker()
-        @items = repo.get_current_tree(@project.id)
+
+        if @project.conflict
+            redirect_to "/projects/" + @project.id.to_s + "/conflicts"
+        else
+            @history = repo.get_commit_walker()
+            @items = repo.get_current_tree(@project.id)
+        end
     end
 
     def new
@@ -84,9 +94,11 @@ class ProjectsController < ApplicationController
 
             share.save
 
-            LogMailer.share_project_email(@project, @user, user, share).deliver
+            LogMailer.share_project_email(@project, @user, 
+                user, share).deliver
             
-            redirect_to project_path(@project), notice: 'Project shared with ' + email
+            redirect_to project_path(@project), 
+                notice: 'Project shared with ' + email
         else
             @error = 'There are no users with email ' + email
             render 'share'
@@ -106,7 +118,11 @@ class ProjectsController < ApplicationController
                     project = Project.find_by_id(share.project_id)
 
                     if project
-                        new_project = Project.new(:name => project.name, :user_id => @user.id, :owner => false, :code => project.code)                        
+                        new_project = Project.new(
+                            :name => project.name, 
+                            :user_id => @user.id, 
+                            :owner => false, 
+                            :code => project.code)                        
                         new_project.save
 
                         share.update(:accepted => true)
@@ -115,9 +131,11 @@ class ProjectsController < ApplicationController
                         repo.fork_to(new_project.path)
                     end
 
-                    redirect_to projects_path, notice: 'New Project Added'
+                    redirect_to projects_path, 
+                        notice: 'New Project Added'
                 else
-                    redirect_to projects_path, notice: 'Invalid share'
+                    redirect_to projects_path, 
+                        notice: 'Invalid share'
                 end
             else
                 redirect_to projects_path, notice: 'Invalid share'
@@ -134,14 +152,18 @@ class ProjectsController < ApplicationController
         
         existingProjects = Project.where('name = ?', name)
         if existingProjects.empty?
-            project = Project.new(:name => name, :user_id => @user.id, :owner => true)
+            project = Project.new(
+                :name => name, 
+                :user_id => @user.id, 
+                :owner => true)
 
             # Since its a new project so we need to tell it to init
             # and generate the code and path fields
             project.init()
 
             if project.save()
-                GitRepo.init_at(project.upstream_path, project.path, @user)
+                GitRepo.init_at(project.upstream_path, 
+                    project.path, @user)
 
                 redirect_to :projects
             else
@@ -186,13 +208,37 @@ class ProjectsController < ApplicationController
             diff = repo.origin_to_local_diff()
 
             if diff[:diff].length > 0
-                redirect_to '/projects/' + @project.id.to_s + '/compare'
+                redirect_to '/projects/' + 
+                    @project.id.to_s + '/compare'
             else
                 redirect_to project_path(@project)
             end
         else
-            @conflicts = c
+            @project.update(:conflict => true)
+            redirect_to '/projects/' + 
+                    @project.id.to_s + '/conflicts'
         end
+    end
+
+    def conflicts
+
+        repo = GitRepo.new(@project.path)
+        @conflicts = repo.get_conflicts
+
+    end
+
+    def undo_merge 
+        repo = GitRepo.new(@project.path)
+        repo.undo_merge
+        @project.update(:conflict => false)
+        redirect_to project_path(@project)
+    end
+
+    def save_merge
+        repo = GitRepo.new(@project.path)
+        repo.commit_merge(@user)
+        @project.update(:conflict => false)
+        redirect_to project_path(@project)
     end
 
 end

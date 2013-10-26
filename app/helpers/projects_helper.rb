@@ -24,4 +24,8 @@ module ProjectsHelper
         '/projects/accept/' + code
     end
 
+    def item_conflict_path(project_id, item_id)
+        '/projects/' + project_id.to_s + '/items/' + item_id.to_s + '/conflict'
+    end
+
 end

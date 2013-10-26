@@ -109,4 +109,36 @@ class ItemsController < ApplicationController
     end
 
 
+    def conflict
+
+        id = params[:id]
+        
+        repo = GitRepo.new(@project.path)
+
+        @item = repo.get_file(id)
+
+        @conflict = repo.get_conflict(id)
+
+    end
+
+    def update_conflict
+
+        id = params[:id]
+        content = params[:content]
+
+        repo = GitRepo.new(@project.path)
+
+        repo.resolve_conflict(id, content)
+
+        redirect_to '/projects/' + @project.id.to_s + '/conflicts'
+
+    end
+
 end
+
+
+
+
+
+
+

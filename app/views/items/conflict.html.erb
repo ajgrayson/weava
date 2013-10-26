@@ -1,0 +1,44 @@
+<% breadcrumb(:item_conflict, [@project, @conflict]) %>
+
+<div class="panel panel-default">
+
+    <div class="panel-heading">
+        <h3 class="panel-title"><%= @item[:name] %></h3>
+    </div>
+    <div class="panel-body">
+        <div class="row">
+
+            <div class="col-md-6">
+                <div><strong>Ours</strong></div>
+                <pre><%= @conflict[:ours][:content] %></pre>
+            </div>
+
+
+            <div class="col-md-6">
+                <div><strong>Theirs</strong></div>
+                <pre><%= @conflict[:theirs][:content] %></pre>
+            </div>
+
+        </div>
+
+        <%= form_tag :action => "update_conflict", :method => "post" do %>
+
+            <div class="row">
+
+                <div class="col-md-12">
+                    <div><strong>Merged (resolve)</strong></div>
+                    <%= text_area_tag "content", @item[:content], :class => "form-control" %>
+                </div>
+
+            </div>
+
+            <div>
+              <%= submit_tag "Resolve", :class => 'btn btn-primary' %>
+              <%= link_to "Cancel", project_conflicts_path(@project.id), :class => 'btn' %>
+            </div>
+
+        <% end -%>
+
+    </div>
+
+</div>
