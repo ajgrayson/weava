@@ -1,9 +1,7 @@
 Weava App
 =====
 
-https://www.codeship.io/projects/c34fb0a0-1157-0131-db55-026770587945/status
-
-[https://www.codeship.io/projects/c34fb0a0-1157-0131-db55-026770587945/status]
+![Status](https://www.codeship.io/projects/c34fb0a0-1157-0131-db55-026770587945/status)
 
 ### Starting fresh on dev
 
