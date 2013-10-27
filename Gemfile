@@ -13,7 +13,8 @@ gem "haml-rails"
 gem 'pg'
 
 # LibGit2
-gem 'rugged', git: 'git://github.com/libgit2/rugged.git', branch: 'development', submodules: true
+gem 'rugged', git: 'git://github.com/libgit2/rugged.git', 
+    branch: 'development', submodules: true
 
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 4.0.0'
@@ -36,7 +37,8 @@ gem 'jquery-rails'
 # Use font-awesome
 gem "font-awesome-rails", "~> 3.2.1.3"
 
-# Turbolinks makes following links in your web application faster. Read more: https://github.com/rails/turbolinks
+# Turbolinks makes following links in your web 
+# application faster. Read more: https://github.com/rails/turbolinks
 gem 'turbolinks'
 
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
@@ -47,7 +49,7 @@ group :doc do
   gem 'sdoc', require: false
 end
 
-# gem 'capistrano', github: 'capistrano/capistrano', branch: 'v3'
+gem 'capistrano', '~> 2.15.5'
 
 # group :development do
 #   gem 'capistrano-rails', '~> 0.0.7'
@@ -60,11 +62,13 @@ end
 gem 'unicorn'
 
 # Use Capistrano for deployment
-gem 'capistrano', group: :development
+# gem 'capistrano', group: :development
 
 gem 'thin'
 
 gem 'gretel'
+
+gem 'newrelic_rpm'
 
 # Use debugger
 gem 'debugger', group: [:development, :test]

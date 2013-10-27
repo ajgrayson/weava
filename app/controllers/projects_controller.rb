@@ -23,10 +23,18 @@ class ProjectsController < ApplicationController
 
         my_projects = Project.where("user_id = ?", @user.id)
         my_projects.each do |project|
+            user = nil
+            if not project.owner
+                orig_project = Project.where("code = ? and owner = ?", project.code, true)
+                user = User.find_by_id(orig_project.first.user_id)
+            else
+                user = User.find_by_id(project.user_id)
+            end
+
             @projects.push({
                 :id => project.id,
                 :name => project.name,
-                :username => @user.name,
+                :username => user.name,
                 :owned => project.owner,
                 :pending => false,
                 :share_code => nil
