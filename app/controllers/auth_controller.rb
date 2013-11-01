@@ -1,11 +1,13 @@
 require "net/http"
 require "uri"
 require "securerandom"
+require "email_log_worker"
 
 class AuthController < ApplicationController
 
 	def login
         if @user
+            EmailLogWorker.perform_async(@user.email)
             redirect_to '/'
         end 
 	end

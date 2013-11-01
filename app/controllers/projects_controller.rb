@@ -1,4 +1,5 @@
 require 'securerandom'
+require 'email_share_worker'
 
 class ProjectsController < ApplicationController
     before_action :authorize_project
@@ -13,7 +14,7 @@ class ProjectsController < ApplicationController
         if id
             @project = Project.find_by_id(id)
             if not @project or @project.user_id != @user.id
-                redirect_to '/403.html'
+                redirect_to route_project_unauthorized(@project.id)
             end
         end
     end
@@ -25,7 +26,9 @@ class ProjectsController < ApplicationController
         my_projects.each do |project|
             user = nil
             if not project.owner
-                orig_project = Project.where("code = ? and owner = ?", project.code, true)
+                orig_project = Project.where("code = ? and " +
+                 " owner = ?", project.code, true)
+
                 user = User.find_by_id(orig_project.first.user_id)
             else
                 user = User.find_by_id(project.user_id)
@@ -42,8 +45,8 @@ class ProjectsController < ApplicationController
         end
 
         shares = ProjectShare.where(
-            "user_id = ? and (accepted is null or accepted = false)",
-             @user.id)
+            "user_id = ? and (accepted is " + 
+                "null or accepted = false)", @user.id)
 
         shares.each do |share|
             project = Project.find_by_id(share.project_id)
@@ -71,7 +74,7 @@ class ProjectsController < ApplicationController
         end
 
         if @project.conflict
-            redirect_to "/projects/" + @project.id.to_s + "/conflicts"
+            redirect_to route_project_conflicts(@project.id)
         else
             @history = repo.get_commit_walker()
             @items = repo.get_current_tree(@project.id)
@@ -86,11 +89,8 @@ class ProjectsController < ApplicationController
         # nothing here... carry on
     end
 
-    def delete 
-        # project = Project.find_by_id(params[:id])
-        # debugger
-        # project.remove()
-        # redirect_to :projects
+    def delete
+        # TODO add delete for project
     end
 
     def share
@@ -112,9 +112,8 @@ class ProjectsController < ApplicationController
 
             share.save
 
-            LogMailer.share_project_email(@project, @user, 
-                user, share).deliver
-            
+            EmailShareWorker.perform_async(@project.id, @user.id, user.id, share.id)
+
             redirect_to project_path(@project), 
                 notice: 'Project shared with ' + email
         else
@@ -140,7 +139,7 @@ class ProjectsController < ApplicationController
                             :name => project.name, 
                             :user_id => @user.id, 
                             :owner => false, 
-                            :code => project.code)                        
+                            :code => project.code)
                         new_project.save
 
                         share.update(:accepted => true)
@@ -156,7 +155,8 @@ class ProjectsController < ApplicationController
                         notice: 'Invalid share'
                 end
             else
-                redirect_to projects_path, notice: 'Invalid share'
+                redirect_to projects_path, 
+                    notice: 'Invalid share'
             end
         else
             redirect_to projects_path, notice: 'Invalid share'
@@ -175,20 +175,21 @@ class ProjectsController < ApplicationController
                 :user_id => @user.id, 
                 :owner => true)
 
-            # Since its a new project so we need to tell it to init
-            # and generate the code and path fields
+            # Since its a new project so we need to tell 
+            # it to init and generate the code and path fields
             project.init()
 
             if project.save()
                 GitRepo.init_at(project.upstream_path, 
                     project.path, @user)
 
-                redirect_to :projects
+                redirect_to route_projects()
             else
                 render 'new'
             end
         else
-            # TODO: better feedback why this failed... async lookup??
+            # TODO: better feedback why this failed...
+            # async lookup??
             render 'new'
         end
     end
@@ -227,15 +228,13 @@ class ProjectsController < ApplicationController
             diff = repo.origin_to_local_diff()
 
             if diff[:diff].length > 0
-                redirect_to '/projects/' + 
-                    @project.id.to_s + '/compare'
+                redirect_to route_project_compare(@project.id)
             else
                 redirect_to project_path(@project)
             end
         else
             @project.update(:conflict => true)
-            redirect_to '/projects/' + 
-                    @project.id.to_s + '/conflicts'
+            redirect_to route_project_conflicts(@project.id)
         end
     end
 
@@ -258,6 +257,25 @@ class ProjectsController < ApplicationController
         repo.commit_merge(@user)
         @project.update(:conflict => false)
         redirect_to project_path(@project)
+    end
+
+    #
+    # Route Helpers
+    #
+    def route_projects() 
+        '/projects'
+    end
+
+    def route_project_conflicts(project_id)
+        '/projects/' + project_id.to_s + '/conflicts'
+    end
+
+    def route_project_compare(project_id)
+        '/projects/' + project_id.to_s + '/compare'
+    end
+
+    def route_project_unauthorized(project_id)
+        '/403.html'
     end
 
 end

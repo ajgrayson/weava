@@ -16,6 +16,11 @@ crumb :project_compare do |project|
   parent :project, project
 end
 
+crumb :project_sync do |project|
+  link "Sync", project_path(project)
+  parent :project, project
+end
+
 crumb :project_conflicts do |project|
   link "Conflicts", conflicts_project_path(project)
   parent :project, project

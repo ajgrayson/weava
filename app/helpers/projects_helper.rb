@@ -28,4 +28,8 @@ module ProjectsHelper
         '/projects/' + project_id.to_s + '/items/' + item_id.to_s + '/conflict'
     end
 
+    def setup_sync_project_path(project_id)
+        "/projects/#{project_id}/setup_sync" 
+    end
+
 end

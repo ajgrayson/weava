@@ -1,0 +1,10 @@
+- breadcrumb :project_sync, @project
+
+.panel.panel-default
+  .panel-heading
+    %h3.panel-title= "Sync '" + @project.name + "' with Zendesk"
+  .panel-body
+    = form_tag start_sync_path(@project.id) do
+      .form-group
+        = submit_tag 'Sync', :class => 'btn btn-primary'
+        = link_to 'Cancel', project_path(@project.id), :class => 'btn'

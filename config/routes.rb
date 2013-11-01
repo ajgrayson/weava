@@ -40,6 +40,8 @@ Weava::Application.routes.draw do
       post 'undo_merge'
       post 'save_merge'
       get 'conflicts'
+      get 'setup_sync' => 'sync#setup'
+      post 'start_sync' => 'sync#start'
     end
   end
   get 'projects/accept/:code' => 'projects#accept_share'

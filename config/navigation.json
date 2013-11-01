@@ -5,17 +5,18 @@
             "match_exact": "/",
             "path": "/",
             "anonymous_only": true
-        },
-        {
+        }
+       ,{
             "text": "Home",
             "match_exact": "/",
-            "path": "/"
-        },
-        {
-            "text": "Projects",
-            "match": "/projects",
-            "path": "/projects"
+            "path": "/",
+            "anonymous_only": true
         }
+       // ,{
+       //      "text": "Projects",
+       //      "match": "/projects",
+       //      "path": "/projects"
+       //  }
     ],
     "user": [
         {
@@ -27,7 +28,8 @@
         {
             "text": "Logout",
             "id": "signout",
-            "path": "javascript:void(0)"
+            "path": "javascript:void(0)",
+            "icon": "signout"
         }
     ]
 }

@@ -70,5 +70,7 @@ gem 'gretel'
 
 gem 'newrelic_rpm'
 
+gem 'sidekiq'
+
 # Use debugger
 gem 'debugger', group: [:development, :test]

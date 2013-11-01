@@ -22,25 +22,27 @@ class ApplicationController < ActionController::Base
         redirect_to '/login'
       end
 
-    else 
-
+    elsif not user
       # this is for people without a beta code and prevents them from doing
       # anything other than view the home page and submit their access code
-      if not user
-        if not ['/', '/access/WEAVABETA2013'].include? request.path
-          if !(beta and request.path == '/login')
-            redirect_to '/'
-          end
+      if not ['/', '/access/WEAVABETA2013'].include? request.path
+        if !(beta and request.path == '/login')
+          redirect_to '/'
         end
       end
-
+    else 
+      if request.path == '/'
+        redirect_to '/projects'
+      end
     end
   end
 
   def verify_profile
     user = current_user
     if user
-      if not user.name and not ['/setup', '/save_setup', '/auth/logout'].include? request.path
+      if not user.name and not ['/setup', '/save_setup', 
+        '/auth/logout'].include? request.path
+
         redirect_to '/setup'
       end
     end
