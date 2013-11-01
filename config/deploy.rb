@@ -1,3 +1,5 @@
+require 'sidekiq/capistrano'
+
 set :application, "app"
 set :repository,  "git@github.com:ajgrayson/weava.git"
 set :branch, "master"
