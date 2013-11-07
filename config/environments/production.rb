@@ -96,4 +96,6 @@ Weava::Application.configure do
     :authentication => :plain
   }
 
+  config.zendesk_appid = 'b7332dbd0a79d045ee81fa18952cc4faf949d23a30fc1512736cb844adf5e995'
+
 end

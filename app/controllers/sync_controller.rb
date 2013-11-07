@@ -19,7 +19,11 @@ class SyncController < ApplicationController
     end
 
     def setup
+        
+    end
 
+    def authorize
+        
     end
 
     def start

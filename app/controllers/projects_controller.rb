@@ -3,9 +3,14 @@ require 'email_share_worker'
 
 class ProjectsController < ApplicationController
     before_action :authorize_project
+    before_filter :init
+
+    def init(project_service = ProjectService.new)
+         @project_service = project_service
+    end
 
     # Ensure the user should be able to access this project
-    def authorize_project
+    def authorize_project()
         id = params[:id]
 
         # Only apply this on actions where
@@ -14,70 +19,28 @@ class ProjectsController < ApplicationController
         if id
             @project = Project.find_by_id(id)
             if not @project or @project.user_id != @user.id
-                redirect_to route_project_unauthorized(@project.id)
+                redirect_to '/403.html'
             end
         end
     end
 
     def index
-        @projects = []
-
-        my_projects = Project.where("user_id = ?", @user.id)
-        my_projects.each do |project|
-            user = nil
-            if not project.owner
-                orig_project = Project.where("code = ? and " +
-                 " owner = ?", project.code, true)
-
-                user = User.find_by_id(orig_project.first.user_id)
-            else
-                user = User.find_by_id(project.user_id)
-            end
-
-            @projects.push({
-                :id => project.id,
-                :name => project.name,
-                :username => user.name,
-                :owned => project.owner,
-                :pending => false,
-                :share_code => nil
-            })
-        end
-
-        shares = ProjectShare.where(
-            "user_id = ? and (accepted is " + 
-                "null or accepted = false)", @user.id)
-
-        shares.each do |share|
-            project = Project.find_by_id(share.project_id)
-            user = User.find_by_id(share.owner_id)
-            if project
-                @projects.push({
-                    :id => project.id,
-                    :name => project.name,
-                    :username => user.name,
-                    :owned => false,
-                    :pending => true,
-                    :share_code => share.code
-                })
-            end
-        end
+        @projects = @project_service.get_projects_for_user(
+            @user.id)
     end
 
     def show
         view_central = params[:view_central]
-        repo = GitRepo.new(@project.path)
-
-        if view_central == "true"
-            repo = GitRepo.new(@project.upstream_path)
-            @central_repo = true
-        end
+        @central_repo = view_central == "true"
 
         if @project.conflict
             redirect_to route_project_conflicts(@project.id)
         else
-            @history = repo.get_commit_walker()
-            @items = repo.get_current_tree(@project.id)
+            @history = @project_service.get_project_history(
+                @project.id, @central_repo)
+
+            @items = @project_service.get_project_items(
+                @project.id, @central_repo)
         end
     end
 
@@ -112,7 +75,8 @@ class ProjectsController < ApplicationController
 
             share.save
 
-            EmailShareWorker.perform_async(@project.id, @user.id, user.id, share.id)
+            EmailShareWorker.perform_async(
+                @project.id, @user.id, user.id, share.id)
 
             redirect_to project_path(@project), 
                 notice: 'Project shared with ' + email
