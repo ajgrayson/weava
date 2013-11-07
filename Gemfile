@@ -9,7 +9,7 @@ gem "haml-rails"
 
 # gem 'activeresource'
 
-# Use sqlite3 as the database for Active Record
+# Use postgress as the database for Active Record
 gem 'pg'
 
 # LibGit2
@@ -59,18 +59,20 @@ gem 'capistrano', '~> 2.15.5'
 # gem 'bcrypt-ruby', '~> 3.0.0'
 
 # Use unicorn as the app server
-gem 'unicorn'
+gem 'unicorn', group: [:development, :test]
 
 # Use Capistrano for deployment
 # gem 'capistrano', group: :development
 
-gem 'thin'
+gem 'thin', group: [:development, :test]
 
 gem 'gretel'
 
-gem 'newrelic_rpm'
+gem 'newrelic_rpm', group: [:production]
 
 gem 'sidekiq'
 
 # Use debugger
-gem 'debugger', group: [:development, :test]
+gem 'debugger', group: [:development]
+
+gem 'rspec-rails', '~> 2.0', group: [:development, :test]
