@@ -5,6 +5,13 @@ Weava App
 
 ### Starting fresh on dev
 
+Using,
+
+- http://postgresapp.com/ for the database with out of box config
+- http://redis.io/ for sidekiq queue with out of box config
+
+Once all the software is installed run,
+
     $ rake db:create # creates the dev and test dbs
     $ rake db:migrate # creates all the tables
 
