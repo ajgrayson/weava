@@ -59,12 +59,12 @@ gem 'capistrano', '~> 2.15.5'
 # gem 'bcrypt-ruby', '~> 3.0.0'
 
 # Use unicorn as the app server
-gem 'unicorn', group: [:development, :test]
+gem 'unicorn'
 
 # Use Capistrano for deployment
 # gem 'capistrano', group: :development
 
-gem 'thin', group: [:development, :test]
+gem 'thin'
 
 gem 'gretel'
 
