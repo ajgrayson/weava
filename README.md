@@ -25,6 +25,7 @@ Assuming that you have a server set up and configured just run
 
 Note:
 
+- if you are deploying to a non-prod server then you will need to update the server URL
 - deploy:setup - creates all the folders etc.
 - deploy:migrations - deploys the app, runs migrations and starts it
 
