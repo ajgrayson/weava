@@ -17,8 +17,8 @@ class ProjectsController < ApplicationController
         # we're accessing a project directly via
         # the id param
         if id
-            @project = Project.find_by_id(id)
-            if not @project or @project.user_id != @user.id
+            @project = @project_service.authorize_project(id, @user.id)
+            if not @project
                 redirect_to '/403.html'
             end
         end
@@ -63,21 +63,8 @@ class ProjectsController < ApplicationController
     def create_share
         email = params[:email]
 
-        users = User.where("email = ?", email)
-        if not users.empty? 
-            user = users[0]
-
-            share = ProjectShare.new(
-                :project_id => @project.id, 
-                :owner_id => @user.id, 
-                :user_id => user.id, 
-                :code => SecureRandom.uuid)
-
-            share.save
-
-            EmailShareWorker.perform_async(
-                @project.id, @user.id, user.id, share.id)
-
+        shared = @project_service.share_project(@project, email)
+        if shared
             redirect_to project_path(@project), 
                 notice: 'Project shared with ' + email
         else
@@ -88,79 +75,35 @@ class ProjectsController < ApplicationController
 
     def accept_share
         share_code = params[:code]
-
         if share_code
-            shares = ProjectShare.where("code = ?", share_code)
-            if not shares.empty?
-                share = shares[0]
-                if share.user_id == @user.id
-                    # we got a live one bob... what do we do?
-
-                    project = Project.find_by_id(share.project_id)
-
-                    if project
-                        new_project = Project.new(
-                            :name => project.name, 
-                            :user_id => @user.id, 
-                            :owner => false, 
-                            :code => project.code)
-                        new_project.save
-
-                        share.update(:accepted => true)
-
-                        repo = GitRepo.new(project.upstream_path)
-                        repo.fork_to(new_project.path)
-                    end
-
-                    redirect_to projects_path, 
+            error = @service.accept_share(@user, share_code)
+            if not error
+                redirect_to projects_path, 
                         notice: 'New Project Added'
-                else
-                    redirect_to projects_path, 
-                        notice: 'Invalid share'
-                end
             else
                 redirect_to projects_path, 
-                    notice: 'Invalid share'
+                    notice: error
             end
-        else
-            redirect_to projects_path, notice: 'Invalid share'
         end
+        redirect_to '/404.html'
     end
 
     # Creates a new project and sets up a git repo
     # TODO: make this async...
     def create
         name = params[:project][:name]
-        
-        existingProjects = Project.where('name = ?', name)
-        if existingProjects.empty?
-            project = Project.new(
-                :name => name, 
-                :user_id => @user.id, 
-                :owner => true)
 
-            # Since its a new project so we need to tell 
-            # it to init and generate the code and path fields
-            project.init()
-
-            if project.save()
-                GitRepo.init_at(project.upstream_path, 
-                    project.path, @user)
-
-                redirect_to route_projects()
-            else
-                render 'new'
-            end
+        error = @service.create_project(@user, name)
+        if not error
+            redirect_to route_projects()
         else
             # TODO: better feedback why this failed...
-            # async lookup??
             render 'new'
         end
     end
 
     def update
         project = Project.find_by_id(params[:id])
-
         if project.update(params[:project].permit(:name))
             redirect_to :projects
         else

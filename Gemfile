@@ -76,3 +76,6 @@ gem 'sidekiq'
 gem 'debugger', group: [:development]
 
 gem 'rspec-rails', '~> 2.0', group: [:development, :test]
+
+gem 'zendesk_api'
+

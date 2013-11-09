@@ -1,11 +1,12 @@
 class ProjectService
 
-    def get_project(project_id, user_id)
+    def authorize_project(project_id, user_id)
         project = Project.find_by_id(project_id)
-        if not project or project.user_id != user.id
-            project = nil
+        if not project or project.user_id != user_id
+            nil
+        else
+            project
         end
-        project
     end
 
     # Get all the user projects including
@@ -93,6 +94,82 @@ class ProjectService
         repo.get_commit_walker()
     end
 
-    
+    def share_project(project, user_email)
+        users = User.where("email = ?", user_email)
+        if not users.empty? 
+            user = users.first
+
+            share = ProjectShare.new(
+                :project_id => project.id, 
+                :owner_id => project.user_id, 
+                :user_id => user.id, 
+                :code => SecureRandom.uuid)
+
+            share.save
+
+            EmailShareWorker.perform_async(
+                project.id, project.user_id, user.id, share.id)
+
+            return share
+        else
+            return nil
+        end
+    end
+
+    def accept_share(user, share_code)
+        shares = ProjectShare.where("code = ?", share_code)
+        if not shares.empty?
+            share = shares.first
+            if share.user_id == user.id
+                # we got a live one bob... what do we do?
+                project = Project.find_by_id(share.project_id)
+
+                if project
+                    new_project = Project.new(
+                        :name => project.name, 
+                        :user_id => user.id, 
+                        :owner => false, 
+                        :code => project.code)
+                    new_project.save
+
+                    share.update(:accepted => true)
+
+                    repo = GitRepo.new(project.upstream_path)
+                    repo.fork_to(new_project.path)
+
+                    return nil
+                else
+                    return 'Project not found'
+                end
+            else
+                return 'Share not found'
+            end
+        else
+            return 'Share not found'
+        end
+    end
+
+    def create_project(user, name)
+        existing_projects = Project.where('name = ?', name)
+        if existing_projects.empty?
+            project = Project.new(
+                :name => name,
+                :user_id => user.id,
+                :owner => true)
+
+            # Since its a new project so we need to tell 
+            # it to init and generate the code and path fields
+            project.init
+            project.save
+
+            GitRepo.init_at(project.upstream_path, 
+                project.path, user)
+
+            return nil
+        else
+            return 'A project already exists with that name'
+        end
+
+    end
 
 end
