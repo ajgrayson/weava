@@ -79,3 +79,5 @@ gem 'rspec-rails', '~> 2.0', group: [:development, :test]
 
 gem 'zendesk_api'
 
+gem 'database_cleaner', group: [:test]
+

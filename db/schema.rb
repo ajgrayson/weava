@@ -42,7 +42,8 @@ ActiveRecord::Schema.define(version: 20131106070406) do
     t.integer "role"
   end
 
-  add_index "projects_users", ["project_id", "user_id"], name: "index_projects_users_on_project_id_and_user_id", using: :btree
+  add_index "projects_users", ["project_id", "user_id"], 
+    name: "index_projects_users_on_project_id_and_user_id", using: :btree
 
   create_table "users", force: true do |t|
     t.string   "name"

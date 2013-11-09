@@ -1,9 +1,10 @@
 require 'securerandom'
 require 'email_share_worker'
+require 'project_service'
 
 class ProjectsController < ApplicationController
-    before_action :authorize_project
     before_filter :init
+    before_action :authorize_project
 
     def init(project_service = ProjectService.new)
          @project_service = project_service
@@ -76,16 +77,17 @@ class ProjectsController < ApplicationController
     def accept_share
         share_code = params[:code]
         if share_code
-            error = @service.accept_share(@user, share_code)
+            error = @project_service.accept_share(@user, share_code)
             if not error
                 redirect_to projects_path, 
-                        notice: 'New Project Added'
+                    notice: 'New Project Added'
             else
                 redirect_to projects_path, 
                     notice: error
             end
+        else
+            redirect_to '/404.html'
         end
-        redirect_to '/404.html'
     end
 
     # Creates a new project and sets up a git repo
@@ -93,7 +95,7 @@ class ProjectsController < ApplicationController
     def create
         name = params[:project][:name]
 
-        error = @service.create_project(@user, name)
+        error = @project_service.create_project(@user, name)
         if not error
             redirect_to route_projects()
         else
@@ -105,7 +107,7 @@ class ProjectsController < ApplicationController
     def update
         project = Project.find_by_id(params[:id])
         if project.update(params[:project].permit(:name))
-            redirect_to :projects
+            redirect_to route_projects()
         else
             render 'edit'
         end

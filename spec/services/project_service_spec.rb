@@ -1,7 +1,10 @@
 require "spec_helper"
 
 describe ProjectService do
-  
+    before(:each) do
+        @service = ProjectService.new
+    end
+
     describe "get_projects_for_user" do
         it "gets projects for user" do
             project1 = Project.new(name: "Project 1", user_id: 1, owner: true)
@@ -11,9 +14,7 @@ describe ProjectService do
 
             allow(User).to receive(:find_by_id) { user1 }
 
-            service = ProjectService.new
-
-            projects = service.get_projects_for_user(1)
+            projects = @service.get_projects_for_user(1)
 
             expect(projects.length).to eq(1)
             expect(projects.first[:name]).to eq(project1.name)
@@ -27,8 +28,7 @@ describe ProjectService do
 
             allow(Project).to receive(:find_by_id) { project }
 
-            service = ProjectService.new
-            auth_project = service.authorize_project(project.id, user.id)
+            auth_project = @service.authorize_project(project.id, user.id)
 
             expect(auth_project).to eq(project)
         end
@@ -39,8 +39,7 @@ describe ProjectService do
 
             allow(Project).to receive(:find_by_id) { project }
 
-            service = ProjectService.new
-            auth_project = service.authorize_project(project.id, user.id)
+            auth_project = @service.authorize_project(project.id, user.id)
 
             expect(auth_project).to eq(nil)
         end
@@ -56,8 +55,7 @@ describe ProjectService do
             allow(ProjectShare).to receive(:save) { true }
             allow(EmailShareWorker).to receive(:perform_async) { true }
 
-            service = ProjectService.new
-            share = service.share_project(project, 'test@test.com')
+            share = @service.share_project(project, 'test@test.com')
 
             expect(share.project_id).to eq(1)
             expect(share.owner_id).to eq(1)
@@ -72,8 +70,7 @@ describe ProjectService do
             allow(ProjectShare).to receive(:save) { true }
             allow(EmailShareWorker).to receive(:perform_async) { true }
 
-            service = ProjectService.new
-            share = service.share_project(project, 'test@test.com')
+            share = @service.share_project(project, 'test@test.com')
 
             expect(share).to eq(nil)
         end
@@ -105,8 +102,7 @@ describe ProjectService do
             allow(GitRepo).to receive(:new) { repo }
             allow(repo).to receive(:fork_to) { true }
 
-            service = ProjectService.new
-            error = service.accept_share(user2, share_code)
+            error = @service.accept_share(user2, share_code)
 
             expect(error).to eq(nil)
         end
@@ -119,8 +115,7 @@ describe ProjectService do
 
             allow(ProjectShare).to receive(:where) { [] }
 
-            service = ProjectService.new
-            error = service.accept_share(user2, 'abc')
+            error = @service.accept_share(user2, 'abc')
 
             expect(error).to eq('Share not found')
         end
@@ -142,8 +137,7 @@ describe ProjectService do
 
             allow(ProjectShare).to receive(:where) { [share] }
             
-            service = ProjectService.new
-            error = service.accept_share(user2, share_code)
+            error = @service.accept_share(user2, share_code)
 
             expect(error).to eq('Share not found')
         end
@@ -164,8 +158,7 @@ describe ProjectService do
 
             allow(Project).to receive(:find_by_id) { nil }
 
-            service = ProjectService.new
-            error = service.accept_share(user2, share_code)
+            error = @service.accept_share(user2, share_code)
 
             expect(error).to eq('Project not found')
         end
@@ -183,8 +176,7 @@ describe ProjectService do
             allow(Project).to receive(:where) { [] }
             allow(GitRepo).to receive(:init_at) { true }
 
-            service = ProjectService.new
-            error = service.create_project(user, project_name)
+            error = @service.create_project(user, project_name)
 
             expect(error).to eq(nil)
         end
@@ -199,11 +191,28 @@ describe ProjectService do
 
             allow(Project).to receive(:where) { [project] }
 
-            service = ProjectService.new
-            error = service.create_project(user, project_name)
+            error = @service.create_project(user, project_name)
 
             expect(error).to eq('A project already exists with that name')
         end
 
+    end
+
+    describe "delete_project" do
+        it "removes the project from the database" do
+            user = User.create!(name: "User1", email: "user@email.com")
+            @service.create_project(user, "Test Project")
+            project = Project.where("name = ? and user_id = ?", 
+                "Test Project", user.id).first
+            project_id = project.id
+
+            project2 = Project.find_by_id(project_id)
+            expect(project2).not_to eq(nil)
+
+            @service.delete_project(project2, user)
+
+            project3 = Project.find_by_id(project_id)
+            expect(project3).to eq(nil)
+        end
     end
 end

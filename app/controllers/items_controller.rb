@@ -1,5 +1,12 @@
+require 'project_service'
+
 class ItemsController < ApplicationController
+    before_filter :init
     before_action :authorize_project
+
+    def init
+        @project_service = ProjectService.new
+    end
 
     # Ensure the user should be able to access this project
     def authorize_project
@@ -9,8 +16,8 @@ class ItemsController < ApplicationController
         # we're accessing a project directly via
         # the id param
         if id
-            @project = Project.find_by_id(id)
-            if not @project or @project.user_id != @user.id
+            @project = @project_service.authorize_project(id, @user.id)
+            if not @project
                 redirect_to '/403.html'
             end
         end

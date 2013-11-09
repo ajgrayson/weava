@@ -42,15 +42,6 @@ Weava::Application.configure do
 
   config.git_user_path = '/tmp/git_user_repos/'
 
-  # action mailer
-  config.action_mailer.smtp_settings = {
-    :address => 'smtp.mailgun.org',
-    :user_name => 'postmaster@weava.mailgun.org',
-    :password => '05eazmku-k42',
-    :domain => 'weava.mailgun.org',
-    :authentication => :plain
-  }
-
-  config.zendesk_appid = 'b7332dbd0a79d045ee81fa18952cc4faf949d23a30fc1512736cb844adf5e995'
+  config.zendesk_appid = '' #b7332dbd0a79d045ee81fa18952cc4faf949d23a30fc1512736cb844adf5e995'
 
 end

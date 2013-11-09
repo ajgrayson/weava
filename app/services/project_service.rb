@@ -11,8 +11,7 @@ class ProjectService
 
     # Get all the user projects including
     # shared projects
-    def get_projects_for_user(
-        user_id)
+    def get_projects_for_user(user_id)
 
         projects = []
 
@@ -169,7 +168,30 @@ class ProjectService
         else
             return 'A project already exists with that name'
         end
+    end
 
+    def delete_project(project, user)
+        if project.user_id == user.id
+
+            if project.owner
+                # if they are the owner and there are no forks
+                # then we can delete the upstream repo
+                child_projects = Project.where("code = ?", project.code)
+                if child_projects.empty?
+                    # delete the upstream repo
+                    FileUtils.rm_rf(project.upstream_path)
+                end
+            end
+
+            # delete the cloned repo
+            FileUtils.rm_rf(project.path)
+
+            # destroy the db record
+            project.destroy
+
+            return true
+        end
+        return false
     end
 
 end
