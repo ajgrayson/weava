@@ -32,7 +32,7 @@ Assuming that you have a server set up and configured just run
 
 Note:
 
-- if you are deploying to a non-prod server then you will need to update the server URL
+- if you are deploying to a non-prod server then you will need to update the server URL in the config/deploy.rb file. It might be a better idea to look into something like http://stackoverflow.com/questions/429816/how-to-deploy-to-a-single-specific-server-using-capistrano.
 - deploy:setup - creates all the folders etc.
 - deploy:migrations - deploys the app, runs migrations and starts it
 
