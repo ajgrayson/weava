@@ -3,6 +3,7 @@
     %h3.panel-title New Project
   .panel-body
     = form_for :project, :url => projects_path do |f|
+      = f.hidden_field :project_type
       .form-group
         = f.label :name
         = f.text_field :name, :class => 'form-control'

@@ -32,4 +32,12 @@ module ProjectsHelper
         "/projects/#{project_id}/setup_sync"
     end
 
+    def wiz_enter_details_path()
+        "/projects/new_project/wiz_enter_details"
+    end
+
+    def wiz_select_type_path()
+        "/projects/new_project/wiz_select_type"
+    end
+
 end

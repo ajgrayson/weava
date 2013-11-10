@@ -27,10 +27,6 @@ Weava::Application.configure do
   # number of complex assets.
   config.assets.debug = true
 
-  # font-awesome
-  #config.assets.paths << Rails.root.join("vendor", "assets", "components", "font-awesome", "font")
-  #config.assets.precompile += %w('fontawesome-webfont.svg' 'fontawesome-webfont.eot' 'fontawesome-webfont.woff' 'fontawesome-webfont.ttf', 'FontAwesome.otf')
-
   # Persona
   config.persona_url = 'http://localhost:3000'
   config.base_url = 'http://localhost:3000'
@@ -49,6 +45,18 @@ Weava::Application.configure do
     :authentication => :plain
   }
 
-  config.zendesk_appid = 'b7332dbd0a79d045ee81fa18952cc4faf949d23a30fc1512736cb844adf5e995'
-  
+  config.zendesk_app_id = 'c1d5a4f317ae34f006b826a0ed14fcbed3524e9dfce0e0600104e5aacccea538'
+
+  config.zendesk_oauth_uri = 'https://weava.zendesk.com/oauth/authorizations/new'
+
+  config.zendesk_redirect_uri = 'http://localhost:3000/zendesk_auth'
+
+  config.zendesk_redirect_token_uri = 'http://localhost:3000/zendesk_token'
+
+  config.zendesk_client_id = 'weava'
+
+  config.zendesk_oauth_token_uri = 'https://weava.zendesk.com/oauth/tokens'
+
+  config.zendesk_api_base_uri = 'https://weava.zendesk.com/api/v2'
+
 end

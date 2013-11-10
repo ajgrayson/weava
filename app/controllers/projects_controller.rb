@@ -1,6 +1,9 @@
 require 'securerandom'
 require 'email_share_worker'
 require 'project_service'
+require 'zendesk_service'
+require 'open-uri'
+require 'net/http'
 
 class ProjectsController < ApplicationController
     before_filter :init
@@ -17,10 +20,11 @@ class ProjectsController < ApplicationController
         # Only apply this on actions where
         # we're accessing a project directly via
         # the id param
-        if id
-            @project = @project_service.authorize_project(id, @user.id)
+        if id != nil
+            @project = @project_service.authorize_project(id, 
+                @user.id)
             if not @project
-                redirect_to '/403.html'
+                redirect_to '/403.html?id=' + id
             end
         end
     end
@@ -45,8 +49,96 @@ class ProjectsController < ApplicationController
         end
     end
 
+    def wiz_select_type
+        
+    end
+
+    def wiz_enter_details
+        type = params[:type]
+        @project = Project.new(:project_type => type)
+
+        if type == 'zendesk'
+            #render 'wiz_connect_zendesk'
+            oauth_uri = URI::encode(Rails.application.config.zendesk_oauth_uri)
+            response_type = 'code'
+            redirect_uri = URI::encode(Rails.application.config.zendesk_redirect_uri)
+            client_id = URI::encode(Rails.application.config.zendesk_client_id)
+            scope = URI::encode('read write')
+            state = ''
+
+            redirect_to "#{oauth_uri}?response_type=#{response_type}" + 
+                "&redirect_uri=#{redirect_uri}&client_id=#{client_id}&scope=#{scope}"
+        else
+            render 'wiz_new'
+        end
+    end
+
+    def zendesk_handle_auth_redirect
+        code = params[:code]
+        error = params[:error]
+        error_description = params[:error_description]
+
+        if not error
+            grant_type = 'authorization_code'
+            client_id = URI::encode(Rails.application.config.zendesk_client_id)
+            client_secret = URI::encode(Rails.application.config.zendesk_app_id)
+            redirect_uri = URI::encode(
+                Rails.application.config.zendesk_redirect_uri)
+            scope = URI::encode('read')
+
+            uri = URI(Rails.application.config.zendesk_oauth_token_uri)
+
+            access_token = nil
+            Net::HTTP.start(uri.host, uri.port, :use_ssl => true) do |https|
+
+                request = Net::HTTP::Post.new(uri.path)
+                request.set_form_data(
+                        "grant_type" => grant_type,
+                        "client_id" => client_id,
+                        "client_secret" => client_secret,
+                        "redirect_uri" => redirect_uri,
+                        "scope" => "read",
+                        "code" => code
+                    )
+
+                response = https.request(request)
+                res = JSON.parse(response.body)
+                access_token = res['access_token']
+            end
+
+            if access_token != nil
+                zd_service = ZendeskService.new(access_token)
+                @categories = zd_service.get_project_name()
+                # if name
+                #     @project_service.create_zendesk_project(@user, name)
+                # else
+                #     redirect_to route_zendesk_auth_error("API Error", 
+                #         "Failed to get project name")
+                # end
+
+                render 'categories'
+
+            else
+                redirect_to route_zendesk_auth_error("Auth Error", 
+                    "Failed to get access token")
+            end
+
+        else
+            redirect_to route_zendesk_auth_error(error, error_description)
+        end
+    end
+
+    def zendesk_handle_token_redirect
+        
+    end
+
+    def auth_error
+        @error = params[:error]
+        @error_description = params[:error_description]
+    end
+
     def new
-        # nothing here... carry on
+
     end
 
     def edit
@@ -77,7 +169,9 @@ class ProjectsController < ApplicationController
     def accept_share
         share_code = params[:code]
         if share_code
-            error = @project_service.accept_share(@user, share_code)
+            error = @project_service.accept_share(@user, 
+                share_code)
+
             if not error
                 redirect_to projects_path, 
                     notice: 'New Project Added'
@@ -93,14 +187,25 @@ class ProjectsController < ApplicationController
     # Creates a new project and sets up a git repo
     # TODO: make this async...
     def create
-        name = params[:project][:name]
+        type = params[:project][:project_type]
+        if type == 'zendesk'
+            domain = params[:domain]
+            username = params[:username]
+            password = params[:password]
+            token = params[:token]
 
-        error = @project_service.create_project(@user, name)
-        if not error
-            redirect_to route_projects()
+            @project_service.connect_to_zendesk(domain, username, password, token)
+            ###
         else
-            # TODO: better feedback why this failed...
-            render 'new'
+            name = params[:project][:name]
+
+            error = @project_service.create_project(@user, name)
+            if not error
+                redirect_to route_projects()
+            else
+                # TODO: better feedback why this failed...
+                render 'new'
+            end
         end
     end
 
@@ -185,6 +290,10 @@ class ProjectsController < ApplicationController
 
     def route_project_unauthorized(project_id)
         '/403.html'
+    end
+
+    def route_zendesk_auth_error(error, error_description) 
+        "/projects/auth_error?error=#{error}&error_description=#{error_description}"
     end
 
 end

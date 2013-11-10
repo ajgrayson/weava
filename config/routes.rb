@@ -40,10 +40,17 @@ Weava::Application.routes.draw do
       post 'undo_merge'
       post 'save_merge'
       get 'conflicts'
-      get 'setup_sync' => 'sync#setup'
-      post 'start_sync' => 'sync#start'
+      get 'setup_sync' => 'sync#setup' #TODO remove
+      post 'start_sync' => 'sync#start' #TODO remove
     end
   end
+  get 'projects/new_project/wiz_select_type' => 'projects#wiz_select_type'
+  post 'projects/new_project/wiz_enter_details' => 'projects#wiz_enter_details'
   get 'projects/accept/:code' => 'projects#accept_share'
+  get 'projects/new_project/auth_error' => 'projects#auth_error'
+
+  # Zendesk auth
+  get 'zendesk_auth' => 'projects#zendesk_handle_auth_redirect'
+  get 'zendesk_token' => 'projects#zendesk_handle_token_redirect'
 
 end

@@ -96,6 +96,18 @@ Weava::Application.configure do
     :authentication => :plain
   }
 
-  config.zendesk_appid = 'b7332dbd0a79d045ee81fa18952cc4faf949d23a30fc1512736cb844adf5e995'
+  config.zendesk_app_id = 'c1d5a4f317ae34f006b826a0ed14fcbed3524e9dfce0e0600104e5aacccea538'
+
+  config.zendesk_oauth_uri = 'https://weava.zendesk.com/oauth/authorizations/new'
+
+  config.zendesk_redirect_uri = 'http://app.weava.io/zendesk_auth'
+
+  config.zendesk_redirect_token_uri = 'http://app.weava.io/zendesk_token'
+
+  config.zendesk_client_id = 'weava'
+
+  config.zendesk_oauth_token_uri = 'https://weava.zendesk.com/oauth/tokens'
+
+  config.zendesk_api_base_uri = 'https://weava.zendesk.com/api/v2'
 
 end

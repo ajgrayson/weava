@@ -1,3 +1,5 @@
+require 'zendesk_api'
+
 class ProjectService
 
     def authorize_project(project_id, user_id)
@@ -148,12 +150,17 @@ class ProjectService
         end
     end
 
-    def create_project(user, name)
+    def create_zendesk_project(user, name) 
+        create_project(user, name, 'zendesk')
+    end
+
+    def create_project(user, name, type = 'default')
         existing_projects = Project.where('name = ?', name)
         if existing_projects.empty?
             project = Project.new(
                 :name => name,
                 :user_id => user.id,
+                :project_type => type,
                 :owner => true)
 
             # Since its a new project so we need to tell 
@@ -176,7 +183,9 @@ class ProjectService
             if project.owner
                 # if they are the owner and there are no forks
                 # then we can delete the upstream repo
-                child_projects = Project.where("code = ?", project.code)
+                child_projects = Project.where("code = ?", 
+                    project.code)
+
                 if child_projects.empty?
                     # delete the upstream repo
                     FileUtils.rm_rf(project.upstream_path)
@@ -193,5 +202,6 @@ class ProjectService
         end
         return false
     end
+
 
 end

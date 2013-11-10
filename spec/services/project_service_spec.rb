@@ -7,7 +7,8 @@ describe ProjectService do
 
     describe "get_projects_for_user" do
         it "gets projects for user" do
-            project1 = Project.new(name: "Project 1", user_id: 1, owner: true)
+            project1 = Project.new(name: "Project 1", user_id: 1, 
+                owner: true)
             user1 = User.new(name: "User 1")
 
             allow(Project).to receive(:where) { [project1] }
@@ -28,7 +29,8 @@ describe ProjectService do
 
             allow(Project).to receive(:find_by_id) { project }
 
-            auth_project = @service.authorize_project(project.id, user.id)
+            auth_project = @service.authorize_project(project.id, 
+                user.id)
 
             expect(auth_project).to eq(project)
         end
@@ -39,7 +41,8 @@ describe ProjectService do
 
             allow(Project).to receive(:find_by_id) { project }
 
-            auth_project = @service.authorize_project(project.id, user.id)
+            auth_project = @service.authorize_project(project.id, 
+                user.id)
 
             expect(auth_project).to eq(nil)
         end
@@ -48,12 +51,14 @@ describe ProjectService do
     describe "share_project" do
 
         it "returns valid share if project is shared" do
-            project = Project.new(name: "Project 1", id: 1, user_id: 1)
+            project = Project.new(name: "Project 1", id: 1, 
+                user_id: 1)
             user = User.new(name: "User 1", id: 2)
 
             allow(User).to receive(:where) { [user] }
             allow(ProjectShare).to receive(:save) { true }
-            allow(EmailShareWorker).to receive(:perform_async) { true }
+            allow(EmailShareWorker).to receive(:perform_async) { 
+                true }
 
             share = @service.share_project(project, 'test@test.com')
 
@@ -63,12 +68,14 @@ describe ProjectService do
         end
 
         it "returns nil if the user is not registered" do
-            project = Project.new(name: "Project 1", id: 1, user_id: 1)
+            project = Project.new(name: "Project 1", id: 1, 
+                user_id: 1)
             user = User.new(name: "User 1", id: 2)
 
             allow(User).to receive(:where) { [] }
             allow(ProjectShare).to receive(:save) { true }
-            allow(EmailShareWorker).to receive(:perform_async) { true }
+            allow(EmailShareWorker).to receive(:perform_async) { 
+                true }
 
             share = @service.share_project(project, 'test@test.com')
 
@@ -84,12 +91,13 @@ describe ProjectService do
             project_id = 1
             share_code = 'abc'
 
-            project1 = Project.new(name: "Project 1", id: project_id, 
-                user_id: user1_id)
+            project1 = Project.new(name: "Project 1", id: 
+                project_id, user_id: user1_id)
 
             user2 = User.new(name: "User 2", id: user2_id)
 
-            share = ProjectShare.new(project_id: project_id, owner_id: user1_id, 
+            share = ProjectShare.new(project_id: project_id, 
+                owner_id: user1_id, 
                 user_id: user2_id, code: share_code)
 
             allow(ProjectShare).to receive(:where) { [share] }
@@ -127,12 +135,13 @@ describe ProjectService do
             project_id = 1
             share_code = 'abc'
 
-            project1 = Project.new(name: "Project 1", id: project_id, 
-                user_id: user1_id)
+            project1 = Project.new(name: "Project 1", 
+                id: project_id, user_id: user1_id)
 
             user2 = User.new(name: "User 2", id: user2_id)
 
-            share = ProjectShare.new(project_id: project_id, owner_id: user1_id, 
+            share = ProjectShare.new(project_id: project_id, 
+                owner_id: user1_id, 
                 user_id: user3_id, code: share_code)
 
             allow(ProjectShare).to receive(:where) { [share] }
@@ -150,8 +159,9 @@ describe ProjectService do
 
             user2 = User.new(name: "User 2", id: user2_id)
 
-            share = ProjectShare.new(project_id: project_id, owner_id: user1_id, 
-                user_id: user2_id, code: share_code)
+            share = ProjectShare.new(project_id: project_id, 
+                owner_id: user1_id, user_id: user2_id, 
+                code: share_code)
 
             allow(ProjectShare).to receive(:where) { [share] }
             allow(ProjectShare).to receive(:update) { true }
@@ -187,20 +197,22 @@ describe ProjectService do
             project_name = "Test Project"
 
             user = User.new(name: "User 1", id: user_id)
-            project = Project.new(name: project_name, id: project_id)
+            project = Project.new(name: project_name, 
+                id: project_id)
 
             allow(Project).to receive(:where) { [project] }
 
             error = @service.create_project(user, project_name)
 
-            expect(error).to eq('A project already exists with that name')
+            expect(error).to eq('A project already exists ' + 'with that name')
         end
 
     end
 
     describe "delete_project" do
         it "removes the project from the database" do
-            user = User.create!(name: "User1", email: "user@email.com")
+            user = User.create!(name: "User1", 
+                email: "user@email.com")
             @service.create_project(user, "Test Project")
             project = Project.where("name = ? and user_id = ?", 
                 "Test Project", user.id).first

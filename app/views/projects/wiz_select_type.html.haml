@@ -1,0 +1,20 @@
+.panel.panel-default
+  .panel-heading
+    %h3.panel-title Select Type of Project
+  .panel-body
+    = form_tag wiz_enter_details_path do
+      .form-group
+        .radio
+          %label
+            = radio_button_tag "type", "default", true
+            Default
+
+      .form-group
+        .radio
+          %label
+            = radio_button_tag "type", "zendesk"
+            Zendesk
+
+      .form-group
+        = submit_tag 'Next', :class => 'btn btn-primary'
+        = link_to 'Cancel', projects_path, :class => 'btn'
