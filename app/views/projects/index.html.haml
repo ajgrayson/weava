@@ -12,9 +12,12 @@
   - if @projects.any?
     - count = 0
     - @projects.each do |project|
-      - if project[:owned]
+      - if project[:owned] 
         %a.list-group-item{href: project_path(project[:id])}
-          %i.icon.icon-briefcase
+          - if project[:type] == 'zendesk' 
+            = image_tag('zendesk_logo.png', :class => 'project-list-logo')
+          - else
+            %i.icon.icon-briefcase
           = project[:name]
           %span.muted (Created by you)
           %i.icon-chevron-right.pull-right
@@ -30,7 +33,7 @@
       - else
         .list-group-item
           %i.icon.icon-group.pull-left
-          = project[:name]
+          = project[:name] 
           %span.muted 
             = '(Shared by ' + project[:username] + ')'
           %span.label.label-info Pending Acceptance

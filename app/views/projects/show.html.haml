@@ -2,6 +2,8 @@
 
 .page-header
   %h1.pull-left 
+    - if @zendesk_project
+      = image_tag('zendesk_logo.png', :class => 'project-header-logo')
     = @project.name
 
   .pull-right
@@ -20,6 +22,11 @@
     %a.btn.btn-info{"data-action" => "pull", "data-id" => @project.id, href: compare_project_path(@project), title: "Pull down changes from upstream"} 
       %i.icon.icon-refresh
       Sync
+
+    %a.btn.btn-default{href: edit_project_path(@project)}
+      %i.icon-gear
+      Settings
+
   .clearfix
 
   .list-group.space-top
@@ -55,6 +62,4 @@
             %td= c.message
 - if not @central_repo
   - if @project.owner
-    = link_to 'Edit', edit_project_path(@project), :class => 'btn btn-default'
     = link_to 'Share', share_project_path(@project), :class => 'btn btn-default'
-    = link_to 'Zendesk Sync', setup_sync_project_path(@project.id), :class => 'btn btn-default'

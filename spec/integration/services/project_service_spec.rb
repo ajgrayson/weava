@@ -100,9 +100,9 @@ describe ProjectService do
 
             allow(GitRepo).to receive(:init_at) { nil }
 
-            error = @service.create_project(user, project_name)
+            res = @service.create_project(user, project_name)
 
-            expect(error).to eq(nil)
+            expect(res[:error]).to eq(nil)
         end
 
         it "fails to create a new project if the name isn't unique" do
@@ -110,9 +110,9 @@ describe ProjectService do
             user = User.create!(name: 'User 1', email: 'test@user.com')
             project = Project.create!(name: project_name, user_id: user.id)
 
-            error = @service.create_project(user, project_name)
+            res = @service.create_project(user, project_name)
 
-            expect(error).to eq('A project already exists with that name')
+            expect(res[:error]).to eq('A project already exists with that name')
         end
     end
 

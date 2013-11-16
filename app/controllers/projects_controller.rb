@@ -2,8 +2,6 @@ require 'securerandom'
 require 'email_share_worker'
 require 'project_service'
 require 'zendesk_service'
-require 'open-uri'
-require 'net/http'
 
 class ProjectsController < ApplicationController
     before_filter :init
@@ -38,6 +36,11 @@ class ProjectsController < ApplicationController
         view_central = params[:view_central]
         @central_repo = view_central == "true"
 
+        if @project.project_type == 'zendesk'
+            @zendesk_project = ZendeskProject.where(
+                "project_id = ?", @project.id)
+        end
+
         if @project.conflict
             redirect_to route_project_conflicts(@project.id)
         else
@@ -49,82 +52,84 @@ class ProjectsController < ApplicationController
         end
     end
 
+    # (1) entry point for creating a new project
     def wiz_select_type
         
     end
 
+    # (2) second stage of creating a new project
+    # - enter the name of the project
     def wiz_enter_details
         type = params[:type]
         @project = Project.new(:project_type => type)
 
         if type == 'zendesk'
-            #render 'wiz_connect_zendesk'
-            oauth_uri = URI::encode(Rails.application.config.zendesk_oauth_uri)
-            response_type = 'code'
-            redirect_uri = URI::encode(Rails.application.config.zendesk_redirect_uri)
-            client_id = URI::encode(Rails.application.config.zendesk_client_id)
-            scope = URI::encode('read write')
-            state = ''
-
-            redirect_to "#{oauth_uri}?response_type=#{response_type}" + 
-                "&redirect_uri=#{redirect_uri}&client_id=#{client_id}&scope=#{scope}"
+            render 'wiz_new_zendesk'
         else
             render 'wiz_new'
         end
     end
 
+    # (3) third stage of creating a new project
+    # save it to the database
+    def create
+        type = params[:project][:project_type]
+        name = params[:project][:name]
+
+        res = @project_service.create_project(
+            @user, name, type)
+
+        if not res[:error]
+            if type == 'zendesk'
+                redirect_to ZendeskService.oauth_url(res[:id])
+                # this will redirect back to 
+                #    zendesk_auth => zendesk_handle_auth_redirect
+            else
+                redirect_to route_projects()
+            end
+        else
+            if type == 'zendesk'
+                render 'wiz_new_zendesk', 
+                    notice: res[:error]
+            else
+                render 'wiz_new',
+                    notice: res[:error]
+            end
+        end
+    end
+
+    # (4) zendesk redirects to here after the user makes a 
+    # decision about the oauth request
     def zendesk_handle_auth_redirect
         code = params[:code]
         error = params[:error]
         error_description = params[:error_description]
+        id = params[:state]
 
         if not error
-            grant_type = 'authorization_code'
-            client_id = URI::encode(Rails.application.config.zendesk_client_id)
-            client_secret = URI::encode(Rails.application.config.zendesk_app_id)
-            redirect_uri = URI::encode(
-                Rails.application.config.zendesk_redirect_uri)
-            scope = URI::encode('read')
-
-            uri = URI(Rails.application.config.zendesk_oauth_token_uri)
-
-            access_token = nil
-            Net::HTTP.start(uri.host, uri.port, :use_ssl => true) do |https|
-
-                request = Net::HTTP::Post.new(uri.path)
-                request.set_form_data(
-                        "grant_type" => grant_type,
-                        "client_id" => client_id,
-                        "client_secret" => client_secret,
-                        "redirect_uri" => redirect_uri,
-                        "scope" => "read",
-                        "code" => code
-                    )
-
-                response = https.request(request)
-                res = JSON.parse(response.body)
-                access_token = res['access_token']
-            end
+            # we need to get the access token
+            access_token = ZendeskService.get_oauth_access_token(
+                code,
+                error,
+                error_description)
 
             if access_token != nil
-                zd_service = ZendeskService.new(access_token)
-                @categories = zd_service.get_project_name()
-                # if name
-                #     @project_service.create_zendesk_project(@user, name)
-                # else
-                #     redirect_to route_zendesk_auth_error("API Error", 
-                #         "Failed to get project name")
-                # end
+                # if we get one then we want to save it to 
+                # the project for use later on
+                project = Project.find_by_id(id)
+                zd_project = ZendeskProject.create!(
+                    :project_id => project.id,
+                    :token => access_token)
 
-                render 'categories'
-
+                redirect_to route_sync_zendesk_project(project.id)
             else
-                redirect_to route_zendesk_auth_error("Auth Error", 
+                redirect_to route_zendesk_auth_error(
+                    "Auth Error", 
                     "Failed to get access token")
             end
-
         else
-            redirect_to route_zendesk_auth_error(error, error_description)
+            redirect_to route_zendesk_auth_error(error, 
+                error_description)
         end
     end
 
@@ -137,9 +142,8 @@ class ProjectsController < ApplicationController
         @error_description = params[:error_description]
     end
 
-    def new
-
-    end
+    # def new
+    # end
 
     def edit
         # nothing here... carry on
@@ -184,31 +188,6 @@ class ProjectsController < ApplicationController
         end
     end
 
-    # Creates a new project and sets up a git repo
-    # TODO: make this async...
-    def create
-        type = params[:project][:project_type]
-        if type == 'zendesk'
-            domain = params[:domain]
-            username = params[:username]
-            password = params[:password]
-            token = params[:token]
-
-            @project_service.connect_to_zendesk(domain, username, password, token)
-            ###
-        else
-            name = params[:project][:name]
-
-            error = @project_service.create_project(@user, name)
-            if not error
-                redirect_to route_projects()
-            else
-                # TODO: better feedback why this failed...
-                render 'new'
-            end
-        end
-    end
-
     def update
         project = Project.find_by_id(params[:id])
         if project.update(params[:project].permit(:name))
@@ -216,6 +195,15 @@ class ProjectsController < ApplicationController
         else
             render 'edit'
         end
+    end
+
+    def zendesk_sync
+
+    end
+
+    def zendesk_sync_start
+        zd_service = ZendeskService.new
+        @categories = zd_service.get_categories(@project.id)
     end
 
     def compare
@@ -281,11 +269,11 @@ class ProjectsController < ApplicationController
     end
 
     def route_project_conflicts(project_id)
-        '/projects/' + project_id.to_s + '/conflicts'
+        '/projects/#{project_id}/conflicts'
     end
 
     def route_project_compare(project_id)
-        '/projects/' + project_id.to_s + '/compare'
+        '/projects/#{project_id}/compare'
     end
 
     def route_project_unauthorized(project_id)
@@ -293,7 +281,12 @@ class ProjectsController < ApplicationController
     end
 
     def route_zendesk_auth_error(error, error_description) 
-        "/projects/auth_error?error=#{error}&error_description=#{error_description}"
+        "/projects/auth_error?error=#{error}" +
+            "&error_description=#{error_description}"
+    end
+
+    def route_sync_zendesk_project(project_id)
+        "/projects/#{project_id}/zendesk_sync"
     end
 
 end

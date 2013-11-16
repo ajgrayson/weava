@@ -1,5 +1,3 @@
-require 'zendesk_api'
-
 class ProjectService
 
     def authorize_project(project_id, user_id)
@@ -36,6 +34,7 @@ class ProjectService
                 :username => user.name,
                 :owned => project.owner,
                 :pending => false,
+                :type => project.project_type,
                 :share_code => nil
             })
         end
@@ -54,6 +53,7 @@ class ProjectService
                     :username => user.name,
                     :owned => false,
                     :pending => true,
+                    :type => project.project_type,
                     :share_code => share.code
                 })
             end
@@ -150,10 +150,6 @@ class ProjectService
         end
     end
 
-    def create_zendesk_project(user, name) 
-        create_project(user, name, 'zendesk')
-    end
-
     def create_project(user, name, type = 'default')
         existing_projects = Project.where('name = ?', name)
         if existing_projects.empty?
@@ -171,9 +167,13 @@ class ProjectService
             GitRepo.init_at(project.upstream_path, 
                 project.path, user)
 
-            return nil
+            return {
+                id: project.id
+            }
         else
-            return 'A project already exists with that name'
+            return {
+                error: 'A project already exists with that name'
+            }
         end
     end
 

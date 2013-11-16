@@ -40,4 +40,8 @@ module ProjectsHelper
         "/projects/new_project/wiz_select_type"
     end
 
+    def project_sync_zendesk_path(project_id)
+        "/projects/#{project_id}/zendesk_sync_start"
+    end
+
 end

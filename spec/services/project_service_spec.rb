@@ -186,9 +186,9 @@ describe ProjectService do
             allow(Project).to receive(:where) { [] }
             allow(GitRepo).to receive(:init_at) { true }
 
-            error = @service.create_project(user, project_name)
+            res = @service.create_project(user, project_name)
 
-            expect(error).to eq(nil)
+            expect(res[:error]).to eq(nil)
         end
 
         it "returns an error if a project with that name already exists" do
@@ -202,9 +202,9 @@ describe ProjectService do
 
             allow(Project).to receive(:where) { [project] }
 
-            error = @service.create_project(user, project_name)
+            res = @service.create_project(user, project_name)
 
-            expect(error).to eq('A project already exists ' + 'with that name')
+            expect(res[:error]).to eq('A project already exists ' + 'with that name')
         end
 
     end
