@@ -10,15 +10,19 @@ Using,
 - http://postgresapp.com/ for the database with out of box config
 - http://redis.io/ for sidekiq queue with out of box config
 
-Once all the software is installed run,
+Once all the software is installed start up the background services,
+
+- Postgres - just start the Postgres app
+- Redis `$ redis-server`
+- SideKiq `$ ?`
+    
+Then run the following to start the app,
 
     $ rake db:create # creates the dev and test dbs
     $ rake db:migrate # creates all the tables
 
-    $ rails server # starts the app
-    $ rails server --debugger # starts the app with debugging enabled
-
-Make sure Postgres is running first
+    $ rails s # starts the app
+    $ rails s --debugger # starts the app with debugging enabled
 
 ### Deploying to prod
 
@@ -44,11 +48,15 @@ Creating migrations
 
     $ rails generate migration MigrationName params
     $ rake db:migrate
+    
+Rolling back the last migration
+
+    $ rake db:rollback
 
 Note
 
-    - MigrationName is the camel case that describes what this migration does e.g. AddSessionIdToUsers
-    - params is the changes you are making e.g. session_id:string
-    - If both of the above a specified then rails will generate a complete migration
+- MigrationName is the camel case that describes what this migration does e.g. AddSessionIdToUsers
+- params is the changes you are making e.g. session_id:string
+- If both of the above a specified then rails will generate a complete migration
 
  
