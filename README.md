@@ -14,7 +14,7 @@ Once all the software is installed start up the background services,
 
 - Postgres - just start the Postgres app
 - Redis `$ redis-server`
-- SideKiq `$ ?`
+- SideKiq `$ bundle exec sidekiq`
     
 Then run the following to start the app,
 
