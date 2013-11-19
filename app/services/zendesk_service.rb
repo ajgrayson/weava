@@ -55,6 +55,8 @@ class ZendeskService
         return access_token
     end
 
+    
+
     def get_categories(project_id)
         zd_project = ZendeskProject.where("project_id = ?", 
             project_id).first

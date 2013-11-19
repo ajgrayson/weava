@@ -22,8 +22,8 @@ class LogMailer < ActionMailer::Base
     @sharing_user = sharing_user
     @receiving_user = receiving_user
     @base_url = Rails.application.config.base_url
-    @share_url = "#{base_url}/projects/accept/#{share.code}"
-    subject = "Weava project share from #{sharing_user.name}"
+    @share_url = "#{@base_url}/projects/accept/#{share.code}"
+    subject = "Weava project share from #{@sharing_user.name}"
 
     mail(to: receiving_user.email, subject: subject)
   end

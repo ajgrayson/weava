@@ -72,8 +72,20 @@ class GitRepo
         return { 
             :id => file[:oid],
             :name => file[:name],
-            :content => blob.content
+            :content => blob.content.force_encoding('UTF-8')
         }
+    end
+
+    def create_meta_file(user, name, meta, content)
+
+        file_content = ["---"]
+        meta.each do |key, value|
+            file_content.push(key.to_s + ":" + value.to_s)
+        end
+        file_content.push("---")
+        file_content.push(content)
+
+        create_file(user, name, file_content.join("\n"))
     end
 
     def create_file(user, name, content)

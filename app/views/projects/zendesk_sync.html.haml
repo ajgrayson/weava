@@ -1,9 +1,0 @@
-.panel.panel-default
-  .panel-heading
-    %h3.panel-title 
-      = "Sync " + @project.name
-  .panel-body
-    = form_for :project, :url => project_sync_zendesk_path(@project.id) do |f|
-      .form-group
-        = f.submit 'Sync', :class => 'btn btn-primary'
-        = link_to 'Cancel', project_path(@project.id), :class => 'btn'

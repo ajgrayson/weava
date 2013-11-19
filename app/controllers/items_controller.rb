@@ -76,7 +76,7 @@ class ItemsController < ApplicationController
         # get the repo
         repo = GitRepo.new(@project.path)
         
-        if commit == 'Save'            
+        if commit == 'Save'
             nid = repo.update_file(@user, id, content, message)
 
             redirect_to project_item_path(@project.id, nid)
@@ -89,7 +89,7 @@ class ItemsController < ApplicationController
     
     def show
         oid = params[:id]
-        
+
         view_central = params[:view_central]
         if view_central == "true"
             repo = GitRepo.new(@project.upstream_path)

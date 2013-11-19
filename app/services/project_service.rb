@@ -1,3 +1,5 @@
+require 'project_role'
+
 class ProjectService
 
     def authorize_project(project_id, user_id)
@@ -150,7 +152,7 @@ class ProjectService
         end
     end
 
-    def create_project(user, name, type = 'default')
+    def create_project(user, name, type = ProjectType::DEFAULT)
         existing_projects = Project.where('name = ?', name)
         if existing_projects.empty?
             project = Project.new(
@@ -163,6 +165,11 @@ class ProjectService
             # it to init and generate the code and path fields
             project.init
             project.save
+
+            ProjectsUsers.create!(
+                :project_id => project.id, 
+                :user_id => user.id, 
+                :role => ProjectRole::Admin)
 
             GitRepo.init_at(project.upstream_path, 
                 project.path, user)

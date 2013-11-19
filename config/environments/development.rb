@@ -45,18 +45,24 @@ Weava::Application.configure do
     :authentication => :plain
   }
 
+  config.cache_store = :redis_store, 'redis://localhost:6379/0/cache', { 
+      expires_in: 90.minutes }
+
+  # Zendesk
   config.zendesk_app_id = 'c1d5a4f317ae34f006b826a0ed14fcbed3524e9dfce0e0600104e5aacccea538'
-
   config.zendesk_oauth_uri = 'https://weava.zendesk.com/oauth/authorizations/new'
-
   config.zendesk_redirect_uri = 'http://localhost:3000/zendesk_auth'
-
   config.zendesk_redirect_token_uri = 'http://localhost:3000/zendesk_token'
-
   config.zendesk_client_id = 'weava'
-
   config.zendesk_oauth_token_uri = 'https://weava.zendesk.com/oauth/tokens'
-
   config.zendesk_api_base_uri = 'https://weava.zendesk.com/api/v2'
+
+  # Desk
+  config.desk_api_consumer_key = 'MLPPya4pNgv2sONjsedo'
+  config.desk_api_consumer_secret = 'BrKfEtHInv7Os0m0g9DCksWCGCn1cQ4J4Gf4NLhU'
+  config.desk_callback_uri = 'http://localhost:3000/desk/auth_redirect'
+  config.desk_api_uri = 'https://weava.desk.com'
+  config.desk_subdomain = 'weava'
+  config.desk_support_email = 'support@weava.io'
 
 end

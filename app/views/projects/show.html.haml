@@ -4,6 +4,8 @@
   %h1.pull-left 
     - if @zendesk_project
       = image_tag('zendesk_logo.png', :class => 'project-header-logo')
+    - elsif @desk_project
+      = image_tag('desk_logo.png', :class => 'project-header-logo')
     = @project.name
 
   .pull-right

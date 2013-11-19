@@ -1,0 +1,3 @@
+module ZendeskHelper
+
+end

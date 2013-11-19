@@ -8,7 +8,10 @@ class EmailShareWorker
         invited_user = User.find_by_id(invited_user_id)
         share = ProjectShare.find_by_id(share_id)
         
-        LogMailer.share_project_email(project, sharing_user, invited_user, share).deliver
+        if project and sharing_user and invited_user and share
+            LogMailer.share_project_email(project, 
+                sharing_user, invited_user, share).deliver
+        end
     end
 
 end

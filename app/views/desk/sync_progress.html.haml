@@ -1,0 +1,13 @@
+.panel.panel-default{:data => { :page => "desk_sync_progress", :stage => @sync_stage }}
+  .panel-heading
+    %h3.panel-title 
+      = @sync_title
+  .panel-body
+    %p.status-message.muted
+      = @sync_status_message
+    .progress.progress-striped.active
+      .progress-bar.progress-bar-info{:role => "progressbar", :data => {:valuenow => @sync_progress_value.to_s, :valuemin => "0", :valuemax => "100"}, :style => "width: " + @sync_progress_value.to_s + "%"}
+
+    -# .pull-right
+    -#   = link_to 'Cancel', project_path(@project.id), :class => 'btn btn-default'
+    -#   .clearfix

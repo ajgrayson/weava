@@ -1,0 +1,13 @@
+.panel.panel-default
+  .panel-heading
+    %h3.panel-title 
+      = @sync_title
+  .panel-body
+    %p.status-message.muted
+      = @sync_status_message
+    .progress.progress-striped.active
+      .progress-bar.progress-bar-info{:role => "progressbar", :ariaValuenow => @sync_progress_value.to_s, :ariaValuemin => "0", :ariaValuemax => "100", :style => "width: " + @sync_progress_value.to_s + "%"}
+
+    .pull-right
+      = link_to 'Cancel', project_path(@project.id), :class => 'btn btn-default'
+      .clearfix

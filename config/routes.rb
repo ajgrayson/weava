@@ -32,25 +32,46 @@ Weava::Application.routes.draw do
       end
     end
     member do
+      # project sharing
       get 'share'
       post 'create_share'
+
+      # project git actions
       get 'compare'
       get 'push'
       get 'merge'
       post 'undo_merge'
       post 'save_merge'
       get 'conflicts'
-      get 'zendesk_sync'
-      post 'zendesk_sync_start'
     end
   end
+
+  # project sharing
+  # :code = share.code
+  get 'projects/accept/:code' => 'projects#accept_share'
+
+  # new project wizard
   get 'projects/new_project/wiz_select_type' => 'projects#wiz_select_type'
   post 'projects/new_project/wiz_enter_details' => 'projects#wiz_enter_details'
-  get 'projects/accept/:code' => 'projects#accept_share'
   get 'projects/new_project/auth_error' => 'projects#auth_error'
 
-  # Zendesk auth
-  get 'zendesk_auth' => 'projects#zendesk_handle_auth_redirect'
-  # get 'zendesk_token' => 'projects#zendesk_handle_token_redirect'
+  # zendesk
+  # :id = project_id
+  get 'zendesk/:id/begin_import' => 'zendesk#begin_import'
+  get 'zendesk/:id/sync_progress' => 'zendesk#sync_progress'
+  # oauth redirect
+  get 'zendesk_auth' => 'zendesk#auth_redirect'
 
+  # desk.com
+  # oauth redirect
+  get 'desk/auth_redirect' => 'desk#auth_redirect'
+  get 'desk/auth' => 'desk#auth'
+
+  get 'desk/sync' => 'desk#sync'
+  get 'desk/:id/sync' => 'desk#sync'
+
+  get 'desk/sync_progress' => 'desk#sync_progress'
+  get 'desk/:id/sync_progress' => 'desk#sync_progress'
+
+  get 'desk/check_sync_progress' => 'desk#check_sync_progress'
 end

@@ -3,7 +3,8 @@
   %head
     %title Weava
     %meta{content: "IE=Edge", "http-equiv" => "X-UA-Compatible"}/
-    
+    %link{rel: "icon", type: "image/x-icon", href: "favicon.ico"}/
+
     = stylesheet_link_tag "application", media: "all", "data-turbolinks-track" => true
     = csrf_meta_tags
 
@@ -48,8 +49,6 @@
       %hr/
 
       %footer
-        %p.pull-right
-          %a{href: "#"} Back to top
         %p
           \© 2013 Weava Ltd ·
           %a{href: "#"} Privacy

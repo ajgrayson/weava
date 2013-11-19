@@ -72,12 +72,17 @@ gem 'newrelic_rpm', group: [:production]
 
 gem 'sidekiq'
 
+gem 'sidekiq-status'
+
 # Use debugger
 gem 'debugger', group: [:development]
 
 gem 'rspec-rails', '~> 2.0', group: [:development, :test]
 
-gem 'zendesk_api'
-
 gem 'database_cleaner', group: [:test]
 
+gem 'oauth'
+
+gem 'desk'
+
+gem 'redis-rails'

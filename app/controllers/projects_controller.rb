@@ -39,6 +39,9 @@ class ProjectsController < ApplicationController
         if @project.project_type == 'zendesk'
             @zendesk_project = ZendeskProject.where(
                 "project_id = ?", @project.id)
+        elsif @project.project_type == 'desk'
+            @desk_project = DeskProject.where(
+                "project_id = ?", @project.id)
         end
 
         if @project.conflict
@@ -63,7 +66,10 @@ class ProjectsController < ApplicationController
         type = params[:type]
         @project = Project.new(:project_type => type)
 
-        if type == 'zendesk'
+        if type == 'desk'
+            # oauth starts here
+            redirect_to route_desk_auth()
+        elsif type == 'zendesk'
             render 'wiz_new_zendesk'
         else
             render 'wiz_new'
@@ -92,55 +98,12 @@ class ProjectsController < ApplicationController
                 render 'wiz_new_zendesk', 
                     notice: res[:error]
             else
-                render 'wiz_new',
+                render 'wiz_new_default',
                     notice: res[:error]
             end
         end
     end
 
-    # (4) zendesk redirects to here after the user makes a 
-    # decision about the oauth request
-    def zendesk_handle_auth_redirect
-        code = params[:code]
-        error = params[:error]
-        error_description = params[:error_description]
-        id = params[:state]
-
-        if not error
-            # we need to get the access token
-            access_token = ZendeskService.get_oauth_access_token(
-                code,
-                error,
-                error_description)
-
-            if access_token != nil
-                # if we get one then we want to save it to 
-                # the project for use later on
-                project = Project.find_by_id(id)
-                zd_project = ZendeskProject.create!(
-                    :project_id => project.id,
-                    :token => access_token)
-
-                redirect_to route_sync_zendesk_project(project.id)
-            else
-                redirect_to route_zendesk_auth_error(
-                    "Auth Error", 
-                    "Failed to get access token")
-            end
-        else
-            redirect_to route_zendesk_auth_error(error, 
-                error_description)
-        end
-    end
-
-    def zendesk_handle_token_redirect
-        
-    end
-
-    def auth_error
-        @error = params[:error]
-        @error_description = params[:error_description]
-    end
 
     # def new
     # end
@@ -197,14 +160,14 @@ class ProjectsController < ApplicationController
         end
     end
 
-    def zendesk_sync
+    # def zendesk_sync
 
-    end
+    # end
 
-    def zendesk_sync_start
-        zd_service = ZendeskService.new
-        @categories = zd_service.get_categories(@project.id)
-    end
+    # def zendesk_sync_start
+    #     zd_service = ZendeskService.new
+    #     @categories = zd_service.get_categories(@project.id)
+    # end
 
     def compare
         repo = GitRepo.new(@project.path)
@@ -265,28 +228,23 @@ class ProjectsController < ApplicationController
     # Route Helpers
     #
     def route_projects() 
-        '/projects'
+        "/projects"
     end
 
     def route_project_conflicts(project_id)
-        '/projects/#{project_id}/conflicts'
+        "/projects/#{project_id}/conflicts"
     end
 
     def route_project_compare(project_id)
-        '/projects/#{project_id}/compare'
+        "/projects/#{project_id}/compare"
     end
 
     def route_project_unauthorized(project_id)
-        '/403.html'
+        "/403.html"
     end
 
-    def route_zendesk_auth_error(error, error_description) 
-        "/projects/auth_error?error=#{error}" +
-            "&error_description=#{error_description}"
-    end
-
-    def route_sync_zendesk_project(project_id)
-        "/projects/#{project_id}/zendesk_sync"
+    def route_desk_auth
+        "/desk/auth"
     end
 
 end

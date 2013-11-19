@@ -9,11 +9,18 @@
             = radio_button_tag "type", "default", true
             Default
 
+      -# .form-group
+      -#   .radio
+      -#     %label
+      -#       = radio_button_tag "type", "zendesk", nil, :disabled => "disabled"
+      -#       Zendesk
+
       .form-group
         .radio
           %label
-            = radio_button_tag "type", "zendesk"
-            Zendesk
+            = radio_button_tag "type", "desk"
+            = image_tag "desk_logo.png", :class => "project-type-icon"
+            Desk
 
       .form-group
         = submit_tag 'Next', :class => 'btn btn-primary'
