@@ -23,9 +23,13 @@ class DeskNewProjectWorker
                 access_token_secret)
 
             if desk_project != nil
-                store project_id: desk_project[:id]
+                store project_id: desk_project[:project_id]
 
-                at 80, 100, "Finalizing"
+                at 60, 100, "Importing Content"
+
+                desk_service.import_project(desk_project[:project_id], user_id)
+
+                at 90, 100, "Finalizing"
 
                 message = "User #{user.name} created a Desk Project '#{name[:value]}'"
                 LogMailer.log_email(message).deliver

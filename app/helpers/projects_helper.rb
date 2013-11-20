@@ -20,6 +20,10 @@ module ProjectsHelper
         path
     end
 
+    def delete_project_path(project)
+        "/projects/#{project.id.to_s}/confirm_delete"
+    end
+
     def project_share_accept_path(code)
         "/projects/accept/#{code}"
     end

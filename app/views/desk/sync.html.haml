@@ -1,7 +1,7 @@
-.panel.panel-default{:data => { :page => "desk_sync_progress", :stage => @sync_stage }}
+.panel.panel-default{:data => { :page => "desk_sync_progress", :job_id => @job_id }}
   .panel-heading
     %h3.panel-title 
-      = @sync_title
+      Setting up New Desk Project
   .panel-body
     %p.status-message.muted
       = @sync_status_message

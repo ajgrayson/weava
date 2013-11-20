@@ -58,71 +58,39 @@ class DeskController < ApplicationController
 
         # test = 1
 
-        redirect_to route_sync('init')
+        job_id = DeskNewProjectWorker.perform_async(
+                session[:access_token], session[:access_token_secret], @user.id)
+
+        redirect_to route_sync(job_id)
     end
 
     def sync
-        stage = params[:stage]
+        @job_id = params[:job_id]
 
-        if stage == 'init'
-            # kick of background task to fetch account details
-            job_id = DeskNewProjectWorker.perform_async(
-                session[:access_token], session[:access_token_secret], @user.id)
-
-            session[:sync_project_job] = job_id
-            session[:sync_project_job_title] = "Initializing Desk Project"
-        elsif stage == 'import'
-            # kick of background task to fetch account details
-            job_id = DeskImportProjectWorker.perform_async(
-                @project.id, @user.id)
-
-            session[:sync_project_job] = job_id
-            session[:sync_project_job_title] = "Importing Desk Project"
-        end
-
-        redirect_to route_sync_progress(stage)
-    end
-
-    def sync_progress
-        stage = params[:stage]
-        job_id = session[:sync_project_job]
-        data = Sidekiq::Status::get_all(job_id)
-
-        puts 'sync_progress ' + stage.to_s
-
-        if data['message'] == 'Done'
-            if stage == 'init'
-                redirect_to route_sync('import', data['project_id'])
-            elsif stage == 'import'
-                redirect_to project_path(data['project_id'])
-            end
+        if Sidekiq::Status::complete? @job_id
+            redirect_to project_path(data['project_id'])
         else
-            @sync_title = session[:sync_project_job_title]
+            data = Sidekiq::Status::get_all(@job_id)
             @sync_status_message = data['message']
             @sync_progress_value = data['num']
-            @sync_stage = stage
         end
     end
 
     def check_sync_progress
-        stage = params[:stage]
-        job_id = session[:sync_project_job]
+        job_id = params[:job_id]
         data = Sidekiq::Status::get_all(job_id)
 
-        puts 'check_sync_progress ' + stage.to_s
-
-        redirect_url = nil
-        if stage == 'init'
-            redirect_url = route_sync('import', data['project_id'])
-        elsif stage == 'import'
-            redirect_url = project_path(data['project_id'])
+        if Sidekiq::Status::complete? job_id
+            project_id = Sidekiq::Status::get job_id, :project_id
+            msg = {
+                :redirect_url => project_path(project_id)
+            }
+        else
+            msg = {
+                :status => data['message'], 
+                :value => data['num']
+            }
         end
-
-        msg = {
-            :status => data['message'], 
-            :value => data['num'],
-            :redirect_url => redirect_url
-        }
 
         respond_to do |format|
             format.json  {
@@ -136,20 +104,8 @@ class DeskController < ApplicationController
     # Route Helpers
     #
 
-    def route_sync(stage, project_id = nil)
-        if not project_id
-            "/desk/sync?stage=#{stage}"
-        else
-            "/desk/#{project_id}/sync?stage=#{stage}"
-        end 
-    end
-
-    def route_sync_progress(stage, project_id = nil)
-        if not project_id
-            "/desk/sync_progress?stage=#{stage}"
-        else
-            "/desk/#{project_id}/sync_progress?stage=#{stage}"
-        end
+    def route_sync(job_id)
+        "/desk/sync?job_id=#{job_id}"
     end
 
     def route_project_unauthorized

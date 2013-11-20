@@ -3,11 +3,11 @@
 // You can use CoffeeScript in this file: http://coffeescript.org/
 
 function check_progress() {
-    var stage = $('[data-stage]').attr('data-stage');
+    var job_id = $('[data-job-id]').attr('data-job-id');
     $.ajax({
-        url: '/desk/check_sync_progress?stage=' + stage
+        url: '/desk/check_sync_progress?job_id=' + job_id
     }).done(function(res) {
-        if (res.status === 'Done') {
+        if (res.redirect_url) {
             window.location = res.redirect_url;
         } else {
             $('.status-message').html(res.status);

@@ -16,7 +16,7 @@
             <%= link_to 'Cancel', project_path(@project), :class => 'btn' %>
         </div>
         <div class="pull-right">
-            <%= f.submit 'Delete', :class => 'btn btn-danger' %>
+            <%= link_to 'Delete', delete_project_path(@project), :class => 'btn btn-danger' %>
         </div>
     </div>  
     

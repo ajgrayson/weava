@@ -32,6 +32,7 @@ Weava::Application.routes.draw do
       end
     end
     member do
+      get 'confirm_delete'
       # project sharing
       get 'share'
       post 'create_share'

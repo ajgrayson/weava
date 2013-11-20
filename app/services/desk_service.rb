@@ -16,7 +16,8 @@ class DeskService
             desk_project.save
 
             return {
-                id: desk_project.project_id
+                id: desk_project.id,
+                project_id: desk_project.project_id
             }
         else
             return {
@@ -49,6 +50,13 @@ class DeskService
                         :subject => article[:subject]
                     }, article[:body])
             end
+        end
+    end
+
+    def delete_project(project_id)
+        project = DeskProject.where("project_id = ?", project_id).first
+        if project
+            project.destroy
         end
     end
 

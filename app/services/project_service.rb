@@ -185,29 +185,31 @@ class ProjectService
     end
 
     def delete_project(project, user)
-        if project.user_id == user.id
+        if project.user_id == user.id # owner
+            # if they are the owner and there are no forks
+            # then we can delete the upstream repo
+            child_projects = Project.where("code = ?", 
+                project.code)
 
-            if project.owner
-                # if they are the owner and there are no forks
-                # then we can delete the upstream repo
-                child_projects = Project.where("code = ?", 
-                    project.code)
-
-                if child_projects.empty?
-                    # delete the upstream repo
-                    FileUtils.rm_rf(project.upstream_path)
-                end
+            if child_projects.empty?
+                # delete the upstream repo
+                FileUtils.rm_rf(project.upstream_path)
             end
 
-            # delete the cloned repo
-            FileUtils.rm_rf(project.path)
+            desk_service = DeskService.new
+            desk_service.delete_project(project.id)
 
-            # destroy the db record
-            project.destroy
-
-            return true
+            project_user = ProjectsUsers.where("project_id = ?", project.id)
+            project_user.each do |pu|
+                pu.destroy
+            end
         end
-        return false
+
+        # delete the cloned repo
+        FileUtils.rm_rf(project.path)
+
+        # destroy the db record
+        project.destroy
     end
 
 

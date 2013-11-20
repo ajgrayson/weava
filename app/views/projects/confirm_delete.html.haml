@@ -1,0 +1,13 @@
+.panel.panel-default
+  .panel-heading
+    %h3.panel-title Delete Project
+  .panel-body
+    = form_for :project, url: project_path(@project.id), method: :delete do |f|
+      .form-group
+        Are you sure you want to delete
+        = @project.name
+        ?
+      .form-group
+        .pull-left
+          = f.submit 'Delete', :class => 'btn btn-danger'
+          = link_to 'Cancel', project_path(@project), :class => 'btn'

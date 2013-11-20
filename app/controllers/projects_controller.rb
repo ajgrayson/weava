@@ -112,8 +112,13 @@ class ProjectsController < ApplicationController
         # nothing here... carry on
     end
 
-    def delete
-        # TODO add delete for project
+    def destroy
+        @project_service.delete_project(@project, @user)
+        redirect_to route_projects
+    end
+
+    def confirm_delete
+        # nothing here... carry on
     end
 
     def share
