@@ -2,26 +2,26 @@ require 'project_type'
 
 class DeskService
 
-    def create_project(user, project_name, access_token, access_token_secret)
+    def create_project(user, project_name, access_token, 
+        access_token_secret)
+
         project_service = ProjectService.new
 
-        project = project_service.create_project(user, project_name, ProjectType::DESK)
+        res = project_service.create_project(user, project_name, ProjectType::DESK)
 
-        if not project[:error]
-            desk_project = DeskProject.create(
-                :project_id => project[:id], 
+        if not res[:error]
+            desk_project = DeskProject.create!(
+                :project_id => res[:id], 
                 :access_token => access_token,
                 :access_token_secret => access_token_secret)
 
-            desk_project.save
-
             return {
-                id: desk_project.id,
-                project_id: desk_project.project_id
+                :id => desk_project.id,
+                :project_id => desk_project.project_id
             }
         else
             return {
-                error: project[:error]
+                error: res[:error]
             }
         end
     end
@@ -29,11 +29,14 @@ class DeskService
     def import_project(project_id, user_id)
         user = User.find_by_id(user_id)
         project = Project.find_by_id(project_id)
-        desk_project = DeskProject.where("project_id = ?", project_id)[0]
+        desk_project = DeskProject.find_by project_id: project_id
         desk_client = DeskApiClient.new(
             desk_project.access_token, desk_project.access_token_secret)
 
-        repo = GitRepo.new(project.upstream_path)
+        project_service = ProjectService.new
+
+        upstream = project_service.get_repo_path(project.code)
+        repo = GitRepo.new(upstream)
 
         topics = desk_client.get_topics
         topics.each do |topic|
@@ -54,10 +57,7 @@ class DeskService
     end
 
     def delete_project(project_id)
-        project = DeskProject.where("project_id = ?", project_id).first
-        if project
-            project.destroy
-        end
+        DeskProject.destroy_all("project_id = #{project_id}")
     end
 
 end

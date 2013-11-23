@@ -46,15 +46,14 @@ class GitRepo
         @repo.index.write
     end
 
-    def get_current_tree(project_id)
+    def get_current_tree
         if !@repo.empty?
             commit = @repo.lookup(@repo.head.target)
-            
+
             tree = []
             commit.tree.each do |item|
                 tree.push({
                     :id => item[:oid],
-                    :project_id => project_id,
                     :name => item[:name],
                     :type => item[:type]
                 })
@@ -72,7 +71,7 @@ class GitRepo
         return { 
             :id => file[:oid],
             :name => file[:name],
-            :content => blob.content.force_encoding('UTF-8')
+            :content => blob.content
         }
     end
 

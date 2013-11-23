@@ -23,13 +23,13 @@
             "text": "{username}",
             "match": ["/profile", "/users"],
             "path": "/profile",
-            "icon": "user"
+            "icon": "fa fa-user"
         },
         {
             "text": "Logout",
             "id": "signout",
             "path": "javascript:void(0)",
-            "icon": "signout"
+            "icon": "fa fa-sign-out"
         }
     ]
 }

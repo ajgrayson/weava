@@ -5,28 +5,14 @@ describe ProjectService do
         @service = ProjectService.new
     end
 
-    describe "get_projects_for_user" do
-        it "gets projects for user" do
-            project1 = Project.new(name: "Project 1", user_id: 1, 
-                owner: true)
-            user1 = User.new(name: "User 1")
-
-            allow(Project).to receive(:where) { [project1] }
-
-            allow(User).to receive(:find_by_id) { user1 }
-
-            projects = @service.get_projects_for_user(1)
-
-            expect(projects.length).to eq(1)
-            expect(projects.first[:name]).to eq(project1.name)
-        end
-    end
-
     describe "authorize_project" do
         it "returns a project if the user is authorized to view it" do
             project = Project.new(name: "Project 1", user_id: 1)
             user = Project.new(name: "User 1", id: 1)
 
+            join = double("join")
+            allow(join).to receive(:find_by) { project }
+            allow(Project).to receive(:joins) { join }
             allow(Project).to receive(:find_by_id) { project }
 
             auth_project = @service.authorize_project(project.id, 
@@ -48,6 +34,25 @@ describe ProjectService do
         end
     end
 
+    describe "get_projects_for_user" do
+        it "gets projects for user" do
+            project1 = Project.new(name: "Project 1", user_id: 1, 
+                owner: true)
+            user1 = User.new(name: "User 1")
+
+            join = double("join")
+            allow(join).to receive(:where) { [project1] }
+            allow(Project).to receive(:joins) { join }
+
+            allow(User).to receive(:find_by_id) { user1 }
+
+            projects = @service.get_projects_for_user(1)
+
+            expect(projects.length).to eq(1)
+            expect(projects.first[:name]).to eq(project1.name)
+        end
+    end
+
     describe "share_project" do
 
         it "returns valid share if project is shared" do
@@ -55,8 +60,8 @@ describe ProjectService do
                 user_id: 1)
             user = User.new(name: "User 1", id: 2)
 
-            allow(User).to receive(:where) { [user] }
-            allow(ProjectShare).to receive(:save) { true }
+            allow(User).to receive(:find_by) { user }
+            allow(ProjectShare).to receive(:create) { true }
             allow(EmailShareWorker).to receive(:perform_async) { 
                 true }
 
@@ -180,10 +185,14 @@ describe ProjectService do
         it "returns nil if the project is successfully created" do
             user_id = 1
             project_name = "Test Project"
+            project_id = 2
 
             user = User.new(name: "User 1", id: user_id)
+            project = Project.new(name: project_name, id: project_id)
 
             allow(Project).to receive(:where) { [] }
+            allow(Project).to receive(:create) { project }
+            allow(ProjectRole).to receive(:create) { nil }
             allow(GitRepo).to receive(:init_at) { true }
 
             res = @service.create_project(user, project_name)
@@ -213,9 +222,10 @@ describe ProjectService do
         it "removes the project from the database" do
             user = User.create!(name: "User1", 
                 email: "user@email.com")
-            @service.create_project(user, "Test Project")
-            project = Project.where("name = ? and user_id = ?", 
-                "Test Project", user.id).first
+
+            res = @service.create_project(user, "Test Project")
+
+            project = Project.find_by_id(res[:id])
             project_id = project.id
 
             project2 = Project.find_by_id(project_id)

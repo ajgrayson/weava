@@ -33,7 +33,6 @@ Weava::Application.configure do
 
   # git
   config.git_root_path = '/Users/johnathangrayson/Development/weava-git-repos/'
-
   config.git_user_path = '/Users/johnathangrayson/Development/weava-git-user-repos/'
 
   # action mailer

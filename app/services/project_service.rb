@@ -1,63 +1,42 @@
-require 'project_role'
+require 'project_role_type'
 
 class ProjectService
 
     def authorize_project(project_id, user_id)
-        project = Project.find_by_id(project_id)
-        if not project or project.user_id != user_id
-            nil
-        else
-            project
-        end
+        return get_project(project_id, user_id)
     end
 
     # Get all the user projects including
     # shared projects
     def get_projects_for_user(user_id)
-
         projects = []
 
-        my_projects = Project.where("user_id = ?", user_id)
-        my_projects.each do |project|
-            user = nil
-            if not project.owner
-                orig_project = Project.where(
-                    "code = ? and owner = ?", project.code, true)
+        # get the user
+        user = User.find_by_id(user_id)
 
-                user = User.find_by_id(
-                    orig_project.first.user_id)
-            else
-                user = User.find_by_id(project.user_id)
+        # get their projects
+        my_projects = Project.joins(:project_roles).where(
+            project_roles: {user_id: user_id})
+
+        # read the projects into a hash with all
+        # the required details
+        if my_projects
+            my_projects.each do |project|
+                projects.push(get_project_hash(project, user, nil, nil))
             end
-
-            projects.push({
-                :id => project.id,
-                :name => project.name,
-                :username => user.name,
-                :owned => project.owner,
-                :pending => false,
-                :type => project.project_type,
-                :share_code => nil
-            })
         end
 
+        # get all the current projects that have
+        # been shared with the user
         shares = ProjectShare.where(
             "user_id = ? and (accepted is " + 
                 "null or accepted = false)", user_id)
 
         shares.each do |share|
             project = Project.find_by_id(share.project_id)
-            user = User.find_by_id(share.owner_id)
             if project
-                projects.push({
-                    :id => project.id,
-                    :name => project.name,
-                    :username => user.name,
-                    :owned => false,
-                    :pending => true,
-                    :type => project.project_type,
-                    :share_code => share.code
-                })
+                projects.push(
+                    get_project_hash(project, user, true, share.code))
             end
         end
 
@@ -65,50 +44,87 @@ class ProjectService
     end
 
     def get_project_items(
-        project_id, 
+        project_code, 
+        user_id,
         upstream)
 
-        project = Project.find_by_id(project_id)
         repo = nil
-
         if upstream
-            repo = GitRepo.new(project.upstream_path)
+            repo = GitRepo.new(get_repo_path(project_code))
         else
-            repo = GitRepo.new(project.path)
+            repo = GitRepo.new(get_repo_path(project_code, user_id))
         end
 
-        repo.get_current_tree(project.id)
-
+        repo.get_current_tree
     end
 
     def get_project_history(
-        project_id,
+        project_code,
+        user_id,
         upstream)
 
-        project = Project.find_by_id(project_id)
         repo = nil
-
         if upstream
-            repo = GitRepo.new(project.upstream_path)
+            repo = GitRepo.new(get_repo_path(project_code))
         else
-            repo = GitRepo.new(project.path)
+            repo = GitRepo.new(get_repo_path(project_code, user_id))
         end
 
         repo.get_commit_walker()
     end
 
-    def share_project(project, user_email)
-        users = User.where("email = ?", user_email)
-        if not users.empty? 
-            user = users.first
+    def create_project(user, name, type = ProjectType::DEFAULT)
+        existing_project = Project.where(name: name, 
+            user_id: user.id)
 
-            share = ProjectShare.new(
+        if not existing_project.any?
+            project = Project.create!(
+                :name => name,
+                :user_id => user.id,
+                :project_type => type,
+                :code => SecureRandom.uuid)
+
+            ProjectRole.create!(
+                :project_id => project.id, 
+                :user_id => user.id, 
+                :role => ProjectRoleType::Admin)
+
+            GitRepo.init_at(get_repo_path(project.code), 
+                get_repo_path(project.code, user.id), user)
+
+            return {
+                id: project.id
+            }
+        else
+            return {
+                error: 'A project already exists with that name'
+            }
+        end
+    end
+
+    def get_project(id, user_id)
+        project = Project.joins(:project_roles).find_by(
+            project_roles: { 
+                project_id: id, 
+                user_id: user_id
+            })
+
+        # this is because a join makes the returned project
+        # readonly... :(
+        if project
+            return Project.find_by_id(project.id)
+        end
+        return nil
+    end
+
+    def share_project(project, user_email)
+        user = User.find_by email: user_email
+        if user
+            share = ProjectShare.create!(
                 :project_id => project.id, 
                 :owner_id => project.user_id, 
                 :user_id => user.id, 
                 :code => SecureRandom.uuid)
-
-            share.save
 
             EmailShareWorker.perform_async(
                 project.id, project.user_id, user.id, share.id)
@@ -128,17 +144,15 @@ class ProjectService
                 project = Project.find_by_id(share.project_id)
 
                 if project
-                    new_project = Project.new(
-                        :name => project.name, 
-                        :user_id => user.id, 
-                        :owner => false, 
-                        :code => project.code)
-                    new_project.save
+                    ProjectRole.create!(
+                        :project_id => project.id, 
+                        :user_id => user.id,
+                        :role => ProjectRoleType::Editor)
 
                     share.update(:accepted => true)
 
-                    repo = GitRepo.new(project.upstream_path)
-                    repo.fork_to(new_project.path)
+                    repo = GitRepo.new(get_repo_path(project.code))
+                    repo.fork_to(get_repo_path(project.code, user.id))
 
                     return nil
                 else
@@ -152,65 +166,57 @@ class ProjectService
         end
     end
 
-    def create_project(user, name, type = ProjectType::DEFAULT)
-        existing_projects = Project.where('name = ?', name)
-        if existing_projects.empty?
-            project = Project.new(
-                :name => name,
-                :user_id => user.id,
-                :project_type => type,
-                :owner => true)
-
-            # Since its a new project so we need to tell 
-            # it to init and generate the code and path fields
-            project.init
-            project.save
-
-            ProjectsUsers.create!(
-                :project_id => project.id, 
-                :user_id => user.id, 
-                :role => ProjectRole::Admin)
-
-            GitRepo.init_at(project.upstream_path, 
-                project.path, user)
-
-            return {
-                id: project.id
-            }
-        else
-            return {
-                error: 'A project already exists with that name'
-            }
-        end
-    end
-
     def delete_project(project, user)
         if project.user_id == user.id # owner
-            # if they are the owner and there are no forks
-            # then we can delete the upstream repo
-            child_projects = Project.where("code = ?", 
-                project.code)
+            FileUtils.rm_rf(get_repo_path(project.code))
+            FileUtils.rm_rf(get_repo_path(project.code, user.id))
 
-            if child_projects.empty?
-                # delete the upstream repo
-                FileUtils.rm_rf(project.upstream_path)
+            if project.project_type == ProjectType::DESK
+                desk_service = DeskService.new
+                desk_service.delete_project(project.id)
             end
 
-            desk_service = DeskService.new
-            desk_service.delete_project(project.id)
-
-            project_user = ProjectsUsers.where("project_id = ?", project.id)
-            project_user.each do |pu|
-                pu.destroy
+            child_projects = ProjectRole.where(project_id: project.id)
+            if child_projects.any?
+                child_projects.each do |cp|
+                    FileUtils.rm_rf(get_repo_path(project.code, cp.user_id))
+                    #cp.destroy
+                end
             end
+
+            project.destroy
         end
-
-        # delete the cloned repo
-        FileUtils.rm_rf(project.path)
-
-        # destroy the db record
-        project.destroy
     end
 
+    def get_repo_path(project_code, user_id = nil)
+        if user_id
+            user_path = Rails.application.config.git_user_path
+            return File.join(user_path, 'user' + user_id.to_s, project_code.to_s)
+        else
+            core_path = Rails.application.config.git_root_path
+            return File.join(core_path, project_code.to_s)
+        end
+    end
+
+    private 
+        def get_project_hash(project, user, pending, share_code)
+            project_owner = user
+
+            # if they arent the owner then find
+            # the owner
+            if project.user_id != user.id
+                project_owner = User.find_by_id(project.user_id)
+            end
+
+            return {
+                :id => project.id,
+                :name => project.name,
+                :username => project_owner.name,
+                :owned => project.user_id == user.id,
+                :pending => pending,
+                :type => project.project_type,
+                :share_code => share_code
+            }
+        end
 
 end

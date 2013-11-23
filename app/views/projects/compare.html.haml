@@ -14,11 +14,11 @@
     .pull-right
       - if not @in_sync
         %a.btn.btn-primary{"data-action" => "push", "data-id" => @project.id, href: merge_project_path(@project), title: "Merge in changes from upstream"}
-          %i.icon-arrow-down
+          %i.fa.fa-arrow-down
           Merge
       - else
         %a.btn.btn-success{"data-action" => "push", "data-id" => @project.id, href: push_project_path(@project), title: "Push changes to upstream"}
-          %i.icon-arrow-up
+          %i.fa.fa-arrow-up
           Push
 
   .clearfix

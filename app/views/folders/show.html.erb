@@ -2,8 +2,7 @@
   <div class="panel-heading">
     <h3 class="panel-title pull-left"><%= @folder[:name] %></h3>
     <div class="pull-right">
-      <!-- <a href="<%= new_project_folder_path(@project.id) %>"><i class="icon-folder-close"></i> New Folder</a> | -->
-      <a href="<%= new_folder_item_path(@project.id, @folder[:id]) %>"><i class="icon-file"></i> New Item</a>
+      <a href="<%= new_folder_item_path(@project.id, @folder[:id]) %>"><i class="fa fa-file"></i> New Item</a>
     </div>
     <div class="clearfix"></div>
   </div>
@@ -14,14 +13,14 @@
 
         <% if item[:type] == :blob %>
           <a href="<%= project_item_path(item[:project_id], item[:id]) %>" class="list-group-item">
-            <i class="icon-file-text-alt"></i> <%= item[:name] %> 
-            <i class="icon-chevron-right pull-right"></i>
+            <i class="fa fa-file-text-alt"></i> <%= item[:name] %> 
+            <i class="fa fa-chevron-right pull-right"></i>
             <div class="clearfix"></div>
           </a>
         <% else %>
           <a href="<%= project_folder_path(item[:project_id], item[:id]) %>" class="list-group-item">
-            <i class="icon-folder-close"></i> <%= item[:name] %> 
-            <i class="icon-chevron-right pull-right"></i>
+            <i class="fa fa-folder-close"></i> <%= item[:name] %> 
+            <i class="fa fa-chevron-right pull-right"></i>
             <div class="clearfix"></div>
           </a>
         <% end %> 
@@ -35,30 +34,4 @@
    <% end %>
 
 </div>
-<!-- 
-<% if @history %>
-<div class="panel panel-default">
-  <div class="panel-heading">
-    <h3 class="panel-title"><i class="icon-time"></i> History</h3>
-  </div>
-  <table class="table">
-  <thead>
-    <tr>
-      <th>Time</th>
-      <th>Author</th>
-      <th>Message</th>
-    </tr>
-  </thead>
-  <tbody>
-    <%= @history.each do |c| %>
-    <tr>
-      <td><%= c.time %></td>
-      <td><%= c.author[:name] %></td>
-      <td><%= c.message %></td>
-    </tr>
-  <% end %>
-  </tbody>
-  </table>
-</div>
-<% end %>
- -->
+

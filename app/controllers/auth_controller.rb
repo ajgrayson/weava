@@ -5,19 +5,19 @@ require "email_log_worker"
 
 class AuthController < ApplicationController
 
-	def login
+    def login
         if @user
             EmailLogWorker.perform_async(@user.email)
             redirect_to '/'
         end 
-	end
-	
+    end
+
     def logout
         cookies.delete :sessid
         render text: 'ok'
     end
 
-	def authenticate
+    def authenticate
         # The request has to have an assertion for us to verify
         if not params.has_key?(:assertion)
             render text: 'Forbidden', status: :forbidden

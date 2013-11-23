@@ -20,7 +20,7 @@
   <div class="panel panel-default">
     <div class="panel-heading">
         <% if @folder %>
-        <label><i class="icon-folder-open"></i> <%= @folder[:name] + "/" %></label>
+        <label><i class="fa fa-folder-open"></i> <%= @folder[:name] + "/" %></label>
         <% end %>
         <%= text_field_tag "name", @item[:name], :class => "form-control input-large", :placeholder => 'File Name' %>
     </div>

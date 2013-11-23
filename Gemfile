@@ -35,7 +35,7 @@ gem 'jquery-rails'
 # gem 'bootstrap-sass'
 
 # Use font-awesome
-gem "font-awesome-rails", "~> 3.2.1.3"
+gem "font-awesome-sass"
 
 # Turbolinks makes following links in your web 
 # application faster. Read more: https://github.com/rails/turbolinks

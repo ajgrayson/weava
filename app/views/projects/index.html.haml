@@ -4,7 +4,7 @@
   %h1.pull-left Projects
   %div
     %a.pull-right.btn.btn-primary{href: wiz_select_type_path}
-      %i.icon-plus
+      %i.fa.fa-plus
       New Project
   .clearfix
 
@@ -20,30 +20,30 @@
           - elsif project[:type] == 'desk' 
             = image_tag('desk_logo.png', :class => 'project-list-logo')
           - else
-            %i.icon.icon-briefcase
+            %i.fa.fa-briefcase
           = project[:name]
           %span.muted (Created by you)
-          %i.icon-chevron-right.pull-right
+          %i.fa.fa-chevron-right.pull-right
           .clearfix
 
       - elsif not project[:pending]
         %a.list-group-item{href: project_path(project[:id])}
-          %i.icon.icon-group.pull-left
+          %i.fa.fa-group.pull-left
           = project[:name]
           %span.muted 
             = '(Created by ' + project[:username] + ')'
-          %i.icon-chevron-right.pull-right
+          %i.fa.fa-chevron-right.pull-right
           .clearfix
 
       - else
         .list-group-item
-          %i.icon.icon-group.pull-left
+          %i.fa.fa-group.pull-left
           = project[:name] 
           %span.muted 
             = '(Shared by ' + project[:username] + ')'
           %span.label.label-info Pending Acceptance
           %a.pull-right{href: project_share_accept_path(project[:share_code])}
-            %i.icon-ok
+            %i.fa.fa-ok
             Accept
           .clearfix
   - else

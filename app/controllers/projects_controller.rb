@@ -22,7 +22,7 @@ class ProjectsController < ApplicationController
             @project = @project_service.authorize_project(id, 
                 @user.id)
             if not @project
-                redirect_to '/403.html?id=' + id
+                redirect_to route_project_unauthorized
             end
         end
     end
@@ -33,25 +33,29 @@ class ProjectsController < ApplicationController
     end
 
     def show
-        view_central = params[:view_central]
-        @central_repo = view_central == "true"
+        if @project
+            view_central = params[:view_central]
+            @central_repo = view_central == "true"
 
-        if @project.project_type == 'zendesk'
-            @zendesk_project = ZendeskProject.where(
-                "project_id = ?", @project.id)
-        elsif @project.project_type == 'desk'
-            @desk_project = DeskProject.where(
-                "project_id = ?", @project.id)
-        end
+            if @project.project_type == 'zendesk'
+                @zendesk_project = ZendeskProject.where(
+                    "project_id = ?", @project.id)
+            elsif @project.project_type == 'desk'
+                @desk_project = DeskProject.where(
+                    "project_id = ?", @project.id)
+            end
 
-        if @project.conflict
-            redirect_to route_project_conflicts(@project.id)
+            if @project.conflict
+                redirect_to route_project_conflicts(@project.id)
+            else
+                @history = @project_service.get_project_history(
+                    @project.code, @user.id, @central_repo)
+
+                @items = @project_service.get_project_items(
+                    @project.code, @user.id, @central_repo)
+            end
         else
-            @history = @project_service.get_project_history(
-                @project.id, @central_repo)
-
-            @items = @project_service.get_project_items(
-                @project.id, @central_repo)
+            redirect_to route_project_unauthorized
         end
     end
 
@@ -72,7 +76,7 @@ class ProjectsController < ApplicationController
         elsif type == 'zendesk'
             render 'wiz_new_zendesk'
         else
-            render 'wiz_new'
+            render 'wiz_new_default'
         end
     end
 
@@ -85,21 +89,24 @@ class ProjectsController < ApplicationController
         res = @project_service.create_project(
             @user, name, type)
 
-        if not res[:error]
+        if res[:error] == nil
+            @project = @project_service.get_project(
+                res[:id], @user.id)
+
             if type == 'zendesk'
                 redirect_to ZendeskService.oauth_url(res[:id])
                 # this will redirect back to 
                 #    zendesk_auth => zendesk_handle_auth_redirect
             else
-                redirect_to route_projects()
+                redirect_to project_path(@project.id),
+                    :notice => 'Project created'
             end
         else
+            flash.now[:notice] = res[:error]
             if type == 'zendesk'
-                render 'wiz_new_zendesk', 
-                    notice: res[:error]
+                render 'wiz_new_zendesk'
             else
-                render 'wiz_new_default',
-                    notice: res[:error]
+                render 'wiz_new_default'
             end
         end
     end
@@ -109,32 +116,46 @@ class ProjectsController < ApplicationController
     # end
 
     def edit
-        # nothing here... carry on
+        if not @project
+            redirect_to route_project_unauthorized
+        end
     end
 
     def destroy
-        @project_service.delete_project(@project, @user)
-        redirect_to route_projects
+        if @project
+            @project_service.delete_project(@project, @user)
+            redirect_to route_projects
+        else
+            redirect_to route_project_unauthorized
+        end
     end
 
     def confirm_delete
-        # nothing here... carry on
+        if not @project
+            redirect_to route_project_unauthorized
+        end
     end
 
     def share
-        # nothing here... carry on
+        if not @project
+            redirect_to route_project_unauthorized
+        end
     end
 
     def create_share
-        email = params[:email]
+        if @project
+            email = params[:email]
 
-        shared = @project_service.share_project(@project, email)
-        if shared
-            redirect_to project_path(@project), 
-                notice: 'Project shared with ' + email
+            shared = @project_service.share_project(@project, email)
+            if shared
+                redirect_to project_path(@project), 
+                    notice: 'Project shared with ' + email
+            else
+                @error = 'There are no users with email ' + email
+                render 'share'
+            end
         else
-            @error = 'There are no users with email ' + email
-            render 'share'
+            redirect_to route_project_unauthorized
         end
     end
 
@@ -157,11 +178,15 @@ class ProjectsController < ApplicationController
     end
 
     def update
-        project = Project.find_by_id(params[:id])
-        if project.update(params[:project].permit(:name))
-            redirect_to route_projects()
+        if @project
+            if @project.update(params[:project].permit(:name))
+                redirect_to project_path(@project.id)
+            else
+                flash.now[:notice] = 'Update failed'
+                render 'edit'
+            end
         else
-            render 'edit'
+            redirect_to route_project_unauthorized
         end
     end
 
@@ -175,7 +200,7 @@ class ProjectsController < ApplicationController
     # end
 
     def compare
-        repo = GitRepo.new(@project.path)
+        repo = GitRepo.new(@project_service.get_repo_path(@project.code, @user.id))
         repo.fetch_origin
         diff = repo.origin_to_local_diff()
         @diff = diff[:diff]
@@ -185,13 +210,13 @@ class ProjectsController < ApplicationController
     end
 
     def push
-        repo = GitRepo.new(@project.path)
+        repo = GitRepo.new(@project_service.get_repo_path(@project.code, @user.id))
         repo.push_to_origin(@user)
         redirect_to project_path(@project)
     end
 
     def merge
-        repo = GitRepo.new(@project.path)
+        repo = GitRepo.new(@project_service.get_repo_path(@project.code, @user.id))
         
         c = repo.merge_from_origin(@user)
         if c == true
@@ -210,20 +235,20 @@ class ProjectsController < ApplicationController
 
     def conflicts
 
-        repo = GitRepo.new(@project.path)
+        repo = GitRepo.new(@project_service.get_repo_path(@project.code, @user.id))
         @conflicts = repo.get_conflicts
 
     end
 
     def undo_merge 
-        repo = GitRepo.new(@project.path)
+        repo = GitRepo.new(@project_service.get_repo_path(@project.code, @user.id))
         repo.undo_merge
         @project.update(:conflict => false)
         redirect_to project_path(@project)
     end
 
     def save_merge
-        repo = GitRepo.new(@project.path)
+        repo = GitRepo.new(@project_service.get_repo_path(@project.code, @user.id))
         repo.commit_merge(@user)
         @project.update(:conflict => false)
         redirect_to project_path(@project)
@@ -244,12 +269,16 @@ class ProjectsController < ApplicationController
         "/projects/#{project_id}/compare"
     end
 
-    def route_project_unauthorized(project_id)
+    def route_project_unauthorized
         "/403.html"
     end
 
     def route_desk_auth
         "/desk/auth"
+    end
+
+    def route_project_path(project_id)
+        "/projects/#{project_id}/show"
     end
 
 end

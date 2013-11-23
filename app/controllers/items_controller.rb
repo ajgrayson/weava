@@ -15,10 +15,11 @@ class ItemsController < ApplicationController
         # Only apply this on actions where
         # we're accessing a project directly via
         # the id param
-        if id
-            @project = @project_service.authorize_project(id, @user.id)
+        if id != nil
+            @project = @project_service.authorize_project(id, 
+                @user.id)
             if not @project
-                redirect_to '/403.html'
+                redirect_to route_project_unauthorized
             end
         end
     end
@@ -36,7 +37,7 @@ class ItemsController < ApplicationController
         content = params[:content]
         
         # get the repo
-        repo = GitRepo.new(@project.path)
+        repo = GitRepo.new(@project_service.get_repo_path(@project.code, @user.id))
 
         if repo.create_file(@user, name, content)
             redirect_to project_path(@project.id)
@@ -54,9 +55,8 @@ class ItemsController < ApplicationController
     end
 
     def edit
-        # "/projects/" + @project.id.to_s + "/updatefile/" + @file[:oid].to_s
         id = params[:id]
-        repo = GitRepo.new(@project.path)
+        repo = GitRepo.new(@project_service.get_repo_path(@project.code, @user.id))
         file = repo.get_file(id)
 
         @item = {
@@ -74,7 +74,7 @@ class ItemsController < ApplicationController
         id = params[:id]
         
         # get the repo
-        repo = GitRepo.new(@project.path)
+        repo = GitRepo.new(@project_service.get_repo_path(@project.code, @user.id))
         
         if commit == 'Save'
             nid = repo.update_file(@user, id, content, message)
@@ -92,10 +92,10 @@ class ItemsController < ApplicationController
 
         view_central = params[:view_central]
         if view_central == "true"
-            repo = GitRepo.new(@project.upstream_path)
+            repo = GitRepo.new(@project_service.get_repo_path(@project.code))
             @central_repo = true
         else
-            repo = GitRepo.new(@project.path)
+            repo = GitRepo.new(@project_service.get_repo_path(@project.code, @user.id))
         end
 
         @item = repo.get_file(oid)
@@ -108,7 +108,7 @@ class ItemsController < ApplicationController
         version_id = params[:vid]
         commit_id = params[:cid]
 
-        repo = GitRepo.new(@project.path)
+        repo = GitRepo.new(@project_service.get_repo_path(@project.code, @user.id))
 
         @item = repo.get_file_version(commit_id, version_id)
         @item[:project_id] = @project.id
@@ -120,7 +120,7 @@ class ItemsController < ApplicationController
 
         id = params[:id]
         
-        repo = GitRepo.new(@project.path)
+        repo = GitRepo.new(@project_service.get_repo_path(@project.code, @user.id))
 
         @item = repo.get_file(id)
 
@@ -133,12 +133,18 @@ class ItemsController < ApplicationController
         id = params[:id]
         content = params[:content]
 
-        repo = GitRepo.new(@project.path)
+        repo = GitRepo.new(@project_service.get_repo_path(@project.code, @user.id))
 
         repo.resolve_conflict(id, content)
 
         redirect_to '/projects/' + @project.id.to_s + '/conflicts'
 
+    end
+
+
+
+    def route_project_unauthorized
+        "/403.html"
     end
 
 end

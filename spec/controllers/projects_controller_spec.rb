@@ -9,9 +9,8 @@ describe ProjectsController do
             email: "user@test.com", session_id: session_id)
 
         @service = ProjectService.new
-        @service.create_project(@user, "Test Project")
-        @project = Project.where("name = ? and user_id = ?", 
-            "Test Project", @user.id).first
+        res = @service.create_project(@user, "Test Project")
+        @project = Project.find_by_id(res[:id])
 
         request.cookies[:sessid] = session_id
         request.cookies[:beta] = true
@@ -84,7 +83,7 @@ describe ProjectsController do
             post :create, :project => { :name => "Test Project 2" }
 
             expect(response).to redirect_to(:controller => 'projects',
-                :action => 'index')
+                :action => 'show', :id => assigns(:project).id)
         end
     end
 
@@ -93,7 +92,7 @@ describe ProjectsController do
             post :update, :id => @project.id, :project => { :name => "Test Project 2" }
 
             expect(response).to redirect_to(:controller => 'projects',
-                :action => 'index')
+                :action => 'show')
         end
     end
 

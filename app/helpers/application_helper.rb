@@ -24,7 +24,7 @@ module ApplicationHelper
             match_exact = item["match_exact"]
 
             id_attribute = id ? "id=\"#{id}\"" : ""
-            icon_html = icon ? "<i class=\"icon-#{icon}\"></i> " : ""
+            icon_html = icon ? "<i class=\"#{icon}\"></i> " : ""
             active = ""
 
             if current_user and current_user.name

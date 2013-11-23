@@ -7,19 +7,25 @@ describe ProjectService do
 
     describe "get_projects_for_user" do
         it "gets projects for user including pending shares" do
-            user = User.create!(name: "User 1", email: 'test@user.com')
+            user1 = User.create!(name: "User 1", email: 'test@user.com')
             user2 = User.create!(name: "User 2", email: 'test2@user.com')
 
             owned_project = Project.create!(name: "Project 1", 
-                user_id: user.id, owner: true)
+                user_id: user1.id)
+
+            ProjectRole.create!(project_id: owned_project.id,
+                user_id: user1.id)
 
             not_owned_project = Project.create!(name: "Project 2", 
-                user_id: user2.id, owner: true)
+                user_id: user2.id)
+
+            ProjectRole.create!(project_id: not_owned_project.id,
+                user_id: user2.id)
 
             share = ProjectShare.create!(project_id: not_owned_project.id,
-                owner_id: user2.id, user_id: user.id, code: 'test')
+                owner_id: user2.id, user_id: user1.id, code: 'test')
 
-            projects = @service.get_projects_for_user(user.id)
+            projects = @service.get_projects_for_user(user1.id)
 
             expect(projects.length).to eq(2)
             expect(projects.first[:name]).to eq(owned_project.name)
@@ -33,6 +39,7 @@ describe ProjectService do
             user_id = 1
 
             project = Project.create!(name: project_name, user_id: user_id)
+            ProjectRole.create!(project_id: project.id, user_id: user_id)
 
             auth_project = @service.authorize_project(project.id, user_id)
 
@@ -109,6 +116,8 @@ describe ProjectService do
             project_name = 'Test Project'
             user = User.create!(name: 'User 1', email: 'test@user.com')
             project = Project.create!(name: project_name, user_id: user.id)
+
+            allow(GitRepo).to receive(:init_at) { nil }
 
             res = @service.create_project(user, project_name)
 

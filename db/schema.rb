@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20131117235631) do
+ActiveRecord::Schema.define(version: 20131121073146) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -24,6 +24,14 @@ ActiveRecord::Schema.define(version: 20131117235631) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  create_table "project_roles", id: false, force: true do |t|
+    t.integer "project_id", null: false
+    t.integer "user_id",    null: false
+    t.integer "role"
+  end
+
+  add_index "project_roles", ["project_id", "user_id"], name: "index_project_roles_on_project_id_and_user_id", using: :btree
 
   create_table "project_shares", force: true do |t|
     t.integer  "project_id"
@@ -45,14 +53,6 @@ ActiveRecord::Schema.define(version: 20131117235631) do
     t.boolean  "conflict"
     t.string   "project_type"
   end
-
-  create_table "projects_users", id: false, force: true do |t|
-    t.integer "project_id", null: false
-    t.integer "user_id",    null: false
-    t.integer "role"
-  end
-
-  add_index "projects_users", ["project_id", "user_id"], name: "index_projects_users_on_project_id_and_user_id", using: :btree
 
   create_table "users", force: true do |t|
     t.string   "name"

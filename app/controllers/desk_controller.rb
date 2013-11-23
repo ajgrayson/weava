@@ -19,10 +19,11 @@ class DeskController < ApplicationController
         # Only apply this on actions where
         # we're accessing a project directly via
         # the id param
-        if id
-            @project = Project.find_by_id(id)
-            if not @project or @project.user_id != @user.id
-                redirect_to route_project_unauthorized()
+        if id != nil
+            @project = @project_service.authorize_project(id,
+                @user.id)
+            if not @project
+                redirect_to route_project_unauthorized
             end
         end
     end
@@ -59,7 +60,8 @@ class DeskController < ApplicationController
         # test = 1
 
         job_id = DeskNewProjectWorker.perform_async(
-                session[:access_token], session[:access_token_secret], @user.id)
+            session[:access_token], session[:access_token_secret],
+            @user.id)
 
         redirect_to route_sync(job_id)
     end
@@ -98,7 +100,6 @@ class DeskController < ApplicationController
             }
         end
     end
-
 
     #
     # Route Helpers
