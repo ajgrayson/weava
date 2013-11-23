@@ -7,7 +7,8 @@ class DeskNewProjectWorker
     def perform(access_token, access_token_secret, user_id)
         user = User.find_by_id(user_id)
         desk_service = DeskService.new
-        desk_client = DeskApiClient.new(access_token, access_token_secret)
+        desk_client = DeskApiClient.new(access_token, 
+            access_token_secret)
 
         at 10, 100, "Fetching site details"
 
@@ -27,11 +28,14 @@ class DeskNewProjectWorker
 
                 at 60, 100, "Importing Content"
 
-                desk_service.import_project(desk_project[:project_id], user_id)
+                desk_service.import_project(
+                    desk_project[:project_id], user_id)
 
                 at 90, 100, "Finalizing"
 
-                message = "User #{user.name} created a Desk Project '#{name[:value]}'"
+                message = "User #{user.name} created a " +
+                    "Desk Project '#{name[:value]}'"
+
                 LogMailer.log_email(message).deliver
 
                 at 100, 100, "Done"

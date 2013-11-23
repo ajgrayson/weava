@@ -7,7 +7,8 @@ class DeskService
 
         project_service = ProjectService.new
 
-        res = project_service.create_project(user, project_name, ProjectType::DESK)
+        res = project_service.create_project(user, project_name, 
+            ProjectType::DESK)
 
         if not res[:error]
             desk_project = DeskProject.create!(
@@ -31,7 +32,8 @@ class DeskService
         project = Project.find_by_id(project_id)
         desk_project = DeskProject.find_by project_id: project_id
         desk_client = DeskApiClient.new(
-            desk_project.access_token, desk_project.access_token_secret)
+            desk_project.access_token, 
+            desk_project.access_token_secret)
 
         project_service = ProjectService.new
 
@@ -47,7 +49,8 @@ class DeskService
                 }, topic[:description])
 
             desk_client.get_articles(topic[:id]).each do |article|
-                repo.create_meta_file(user, article[:subject] + '.article', {
+                repo.create_meta_file(user, article[:subject] + 
+                    '.article', {
                         :id => article[:id],
                         :topic_id => topic[:id],
                         :subject => article[:subject]

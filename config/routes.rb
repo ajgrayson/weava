@@ -5,6 +5,9 @@ Weava::Application.routes.draw do
   # Site root
   root 'home#index'
 
+  get 'privacy' => 'home#privacy'
+  get 'terms' => 'home#terms'
+
   # Main
   get 'access/:code' => 'home#access'
 

@@ -37,7 +37,8 @@ class ItemsController < ApplicationController
         content = params[:content]
         
         # get the repo
-        repo = GitRepo.new(@project_service.get_repo_path(@project.code, @user.id))
+        repo = GitRepo.new(@project_service.get_repo_path(
+            @project.code, @user.id))
 
         if repo.create_file(@user, name, content)
             redirect_to project_path(@project.id)
@@ -56,7 +57,8 @@ class ItemsController < ApplicationController
 
     def edit
         id = params[:id]
-        repo = GitRepo.new(@project_service.get_repo_path(@project.code, @user.id))
+        repo = GitRepo.new(@project_service.get_repo_path(
+            @project.code, @user.id))
         file = repo.get_file(id)
 
         @item = {
@@ -74,7 +76,8 @@ class ItemsController < ApplicationController
         id = params[:id]
         
         # get the repo
-        repo = GitRepo.new(@project_service.get_repo_path(@project.code, @user.id))
+        repo = GitRepo.new(@project_service.get_repo_path(
+            @project.code, @user.id))
         
         if commit == 'Save'
             nid = repo.update_file(@user, id, content, message)
@@ -92,10 +95,12 @@ class ItemsController < ApplicationController
 
         view_central = params[:view_central]
         if view_central == "true"
-            repo = GitRepo.new(@project_service.get_repo_path(@project.code))
+            repo = GitRepo.new(@project_service.get_repo_path(
+                @project.code))
             @central_repo = true
         else
-            repo = GitRepo.new(@project_service.get_repo_path(@project.code, @user.id))
+            repo = GitRepo.new(@project_service.get_repo_path(
+                @project.code, @user.id))
         end
 
         @item = repo.get_file(oid)
@@ -108,7 +113,8 @@ class ItemsController < ApplicationController
         version_id = params[:vid]
         commit_id = params[:cid]
 
-        repo = GitRepo.new(@project_service.get_repo_path(@project.code, @user.id))
+        repo = GitRepo.new(@project_service.get_repo_path(
+            @project.code, @user.id))
 
         @item = repo.get_file_version(commit_id, version_id)
         @item[:project_id] = @project.id

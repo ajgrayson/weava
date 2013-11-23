@@ -12,7 +12,7 @@ class ApplicationController < ActionController::Base
   def authorize
     beta = cookies[:beta]
     user = current_user
-    
+
     if beta and not user
 
       # this sends someone who had previously used a beta access
