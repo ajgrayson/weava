@@ -34,6 +34,30 @@ describe ProjectService do
         end
     end
 
+    describe "is_configured" do
+        it "returns an error if the project is not correctly configured" do
+            project_name = "Test Project"
+            user_id = 1
+            project_code = 'testcode'
+
+            user = User.new(
+                    :name => 'Test User',
+                    :id => user_id,
+                    :email => 'test@user.com'
+                )
+
+            project = Project.new(
+                    :name => project_name,
+                    :user_id => user.id,
+                    :code => project_code
+                )
+
+            res = @service.is_configured(project, user)
+
+            expect(res[:error]).to eq('Storage not configured')
+        end
+    end
+
     describe "get_projects_for_user" do
         it "gets projects for user" do
             project1 = Project.new(name: "Project 1", user_id: 1, 

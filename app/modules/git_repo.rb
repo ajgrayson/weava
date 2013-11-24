@@ -14,13 +14,30 @@ class GitRepo
     # create a new central repo, clone it to the user and 
     # prep it for action
     def self.init_at(origin_path, path, user)
+        # if not File.directory?(origin_path)
+        #     Dir.mkdir(origin_path, 755)
+        # end
+
+        # if not File.directory?(path)
+        #     Dir.mkdir(path, 755)
+        # end
+
         # create origin
         Rugged::Repository.init_at(origin_path, :bare)
 
         us_repo = GitRepo.new(origin_path)
-        us_repo.create_file(user, "README.md", "")
+        us_repo.create_file(user, "README.md", "This is your readme file.")
 
         ds_repo = us_repo.fork_to(path)
+
+        FileUtils.chmod 0755, origin_path
+        FileUtils.chmod 0755, path
+
+        uid = Rails.application.config.app_uid
+        gid = Rails.application.config.app_gid
+
+        FileUtils.chown uid, gid, origin_path
+        FileUtils.chown uid, gid, path
 
         return ds_repo
     end

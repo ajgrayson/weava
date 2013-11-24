@@ -37,6 +37,9 @@ Weava::Application.configure do
   config.persona_url = 'http:localhost:3000'
   config.base_url = 'http:localhost:3000'
 
+  config.app_uid = 'johnathangrayson'
+  config.app_gid = 'staff'
+
   # git
   config.git_root_path = '/tmp/git_repos/'
 

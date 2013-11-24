@@ -78,6 +78,10 @@ Weava::Application.configure do
   # Use default logging formatter so that PID and timestamp are not suppressed.
   config.log_formatter = ::Logger::Formatter.new
 
+  # folder permissions
+  config.app_uid = 'deploy'
+  config.app_gid = 'apps'
+
   # Persona
   config.persona_url = 'http://app.weava.io'
   config.base_url = 'http://app.weava.io'

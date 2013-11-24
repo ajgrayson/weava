@@ -27,6 +27,9 @@ Weava::Application.configure do
   # number of complex assets.
   config.assets.debug = true
 
+  config.app_uid = 'johnathangrayson'
+  config.app_gid = 'johnathangrayson'
+
   # Persona
   config.persona_url = 'http://localhost:3000'
   config.base_url = 'http://localhost:3000'

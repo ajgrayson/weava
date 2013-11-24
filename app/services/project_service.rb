@@ -6,6 +6,21 @@ class ProjectService
         return get_project(project_id, user_id)
     end
 
+    def is_configured(project, user)
+        upstream = get_repo_path(project.code)
+        path = get_repo_path(project.code, user.id)
+
+        if not File.directory?(upstream) or not File.directory?(path)
+            return { 
+                :error => 'Storage not configured' 
+            }
+        end
+
+        return {
+            :error => nil
+        }
+    end
+
     # Get all the user projects including
     # shared projects
     def get_projects_for_user(user_id)

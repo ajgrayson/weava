@@ -34,25 +34,31 @@ class ProjectsController < ApplicationController
 
     def show
         if @project
-            view_central = params[:view_central]
-            @central_repo = view_central == "true"
+            res = @project_service.is_configured(@project, @user)
+            if not res[:error]
+                view_central = params[:view_central]
+                @central_repo = view_central == "true"
 
-            if @project.project_type == 'zendesk'
-                @zendesk_project = ZendeskProject.where(
-                    "project_id = ?", @project.id)
-            elsif @project.project_type == 'desk'
-                @desk_project = DeskProject.where(
-                    "project_id = ?", @project.id)
-            end
+                if @project.project_type == 'zendesk'
+                    @zendesk_project = ZendeskProject.where(
+                        "project_id = ?", @project.id)
+                elsif @project.project_type == 'desk'
+                    @desk_project = DeskProject.where(
+                        "project_id = ?", @project.id)
+                end
 
-            if @project.conflict
-                redirect_to route_project_conflicts(@project.id)
+                if @project.conflict
+                    redirect_to route_project_conflicts(@project.id)
+                else
+                    @history = @project_service.get_project_history(
+                        @project.code, @user.id, @central_repo)
+
+                    @items = @project_service.get_project_items(
+                        @project.code, @user.id, @central_repo)
+                end
             else
-                @history = @project_service.get_project_history(
-                    @project.code, @user.id, @central_repo)
-
-                @items = @project_service.get_project_items(
-                    @project.code, @user.id, @central_repo)
+                redirect_to route_project_edit_path(@project.id),
+                    :notice => res[:error]
             end
         else
             redirect_to route_project_unauthorized
@@ -267,6 +273,10 @@ class ProjectsController < ApplicationController
 
     def route_project_compare(project_id)
         "/projects/#{project_id}/compare"
+    end
+
+    def route_project_edit_path(project_id)
+        "/projects/#{project_id}/edit"
     end
 
     def route_project_unauthorized
