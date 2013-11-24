@@ -107,7 +107,9 @@ class ProjectService
             user_path = Rails.application.config.git_user_path
             user_path = File.join(user_path, 'user' + user.id.to_s)
 
-            FileUtils.chmod 0770, user_path
+            if not File.directory?(user_path)
+                Dir.mkdir(user_path, 0770)
+            end
 
             GitRepo.init_at(get_repo_path(project.code), 
                 get_repo_path(project.code, user.id), user)
