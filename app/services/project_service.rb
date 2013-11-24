@@ -104,6 +104,11 @@ class ProjectService
                 :user_id => user.id, 
                 :role => ProjectRoleType::Admin)
 
+            user_path = Rails.application.config.git_user_path
+            user_path = File.join(user_path, 'user' + user_id.to_s
+
+            FileUtils.chmod 0770, user_path
+
             GitRepo.init_at(get_repo_path(project.code), 
                 get_repo_path(project.code, user.id), user)
 
