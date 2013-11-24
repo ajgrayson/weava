@@ -30,14 +30,14 @@ class GitRepo
 
         ds_repo = us_repo.fork_to(path)
 
-        FileUtils.chmod 0755, origin_path
-        FileUtils.chmod 0755, path
+        # FileUtils.chmod 0755, origin_path
+        # FileUtils.chmod 0755, path
 
-        uid = Rails.application.config.app_uid
-        gid = Rails.application.config.app_gid
+        # uid = Rails.application.config.app_uid
+        # gid = Rails.application.config.app_gid
 
-        FileUtils.chown uid, gid, origin_path
-        FileUtils.chown uid, gid, path
+        # FileUtils.chown uid, gid, origin_path
+        # FileUtils.chown uid, gid, path
 
         return ds_repo
     end

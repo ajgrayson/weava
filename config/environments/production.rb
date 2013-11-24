@@ -79,8 +79,8 @@ Weava::Application.configure do
   config.log_formatter = ::Logger::Formatter.new
 
   # folder permissions
-  config.app_uid = 'deploy'
-  config.app_gid = 'apps'
+  #config.app_uid = 'deploy'
+  #config.app_gid = 'apps'
 
   # Persona
   config.persona_url = 'http://app.weava.io'
