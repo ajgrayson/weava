@@ -105,7 +105,7 @@ class ProjectService
                 :role => ProjectRoleType::Admin)
 
             user_path = Rails.application.config.git_user_path
-            user_path = File.join(user_path, 'user' + user_id.to_s
+            user_path = File.join(user_path, 'user' + user.id.to_s)
 
             FileUtils.chmod 0770, user_path
 
