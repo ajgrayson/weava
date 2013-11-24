@@ -5,7 +5,7 @@ class CreateProjectShares < ActiveRecord::Migration
       t.integer :owner_id
       t.integer :user_id
       t.string :code
-
+      t.boolean :accepted
       t.timestamps
     end
   end

@@ -5,7 +5,8 @@ class CreateProjects < ActiveRecord::Migration
       t.integer :user_id
       t.boolean :owner
       t.string :code
-      
+      t.boolean :conflict
+      t.string :project_type
       t.timestamps
     end
   end
