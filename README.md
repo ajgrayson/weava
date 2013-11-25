@@ -59,4 +59,7 @@ Note
 - params is the changes you are making e.g. session_id:string
 - If both of the above a specified then rails will generate a complete migration
 
+
+
+
  
