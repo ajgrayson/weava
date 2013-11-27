@@ -87,9 +87,9 @@ Weava::Application.configure do
   config.base_url = 'http://app.weava.io'
 
   # git
-  config.git_root_path = '/home/apps/core-repos/'
+  config.git_root_path = '/data/core-repos/'
 
-  config.git_user_path = '/home/apps/user-repos/'
+  config.git_user_path = '/data/user-repos/'
 
   # action mailer
   config.action_mailer.smtp_settings = {
