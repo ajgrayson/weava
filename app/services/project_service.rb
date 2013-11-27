@@ -108,7 +108,8 @@ class ProjectService
             user_path = File.join(user_path, 'user' + user.id.to_s)
 
             if not File.directory?(user_path)
-                Dir.mkdir_p(user_path, 0771)
+                Dir.mkdir_p(user_path)
+                FileUtils.chmod(0771, user_path)
             end
 
             GitRepo.init_at(get_repo_path(project.code), 
