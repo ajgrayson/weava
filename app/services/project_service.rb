@@ -110,6 +110,7 @@ class ProjectService
             if not File.directory?(user_path)
                 FileUtils.mkdir_p(user_path)
                 FileUtils.chmod(0771, user_path)
+                FileUtils.chown('deploy', 'apps')
             end
 
             GitRepo.init_at(get_repo_path(project.code), 
