@@ -43,7 +43,7 @@ after "deploy:update_code", "deploy:migrate", "deploy:restart", "deploy:cleanup"
 
 # Server specific
 # ----------------
-set :user, "deploy"
+set :user, "apps"
 server "app.weava.io", :web, :app, :db, :primary => true
 set :deploy_to, "/home/apps/#{application}"
 set :rails_env, "production"

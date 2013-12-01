@@ -218,7 +218,7 @@ class ProjectsController < ApplicationController
     def push
         repo = GitRepo.new(@project_service.get_repo_path(@project.code, @user.id))
         repo.push_to_origin(@user)
-        redirect_to project_path(@project)
+        redirect_to project_path(@project.id)
     end
 
     def merge
