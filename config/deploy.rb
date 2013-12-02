@@ -21,7 +21,7 @@ ssh_options[:forward_agent] = true
 # -------
 require 'bundler/capistrano'
 set :bundle_flags, "--deployment --binstubs"
-set :bundle_without, [:test, :development, :deploy, :stage]
+set :bundle_without, [:test, :development, :deploy]
 
 # Rbenv
 # -----
@@ -44,7 +44,7 @@ after "deploy:update_code", "deploy:migrate", "deploy:restart", "deploy:cleanup"
 # Server specific
 # ----------------
 set :user, "deploy"
-server "test.weava.io", :web, :app, :db, :primary => true
+server "app.weava.io", :web, :app, :db, :primary => true
 set :deploy_to, "/home/apps/#{application}"
 set :rails_env, "production"
 
