@@ -21,7 +21,7 @@ ssh_options[:forward_agent] = true
 # -------
 require 'bundler/capistrano'
 set :bundle_flags, "--deployment --binstubs"
-set :bundle_without, [:test, :development, :deploy]
+set :bundle_without, [:test, :development, :deploy, :stage]
 
 # Rbenv
 # -----

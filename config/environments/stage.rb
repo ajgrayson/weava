@@ -111,7 +111,7 @@ Weava::Application.configure do
   # Desk
   config.desk_api_consumer_key = 'MLPPya4pNgv2sONjsedo'
   config.desk_api_consumer_secret = 'BrKfEtHInv7Os0m0g9DCksWCGCn1cQ4J4Gf4NLhU'
-  config.desk_callback_uri = 'http://test.weava.io/desk/auth_redirect'
+  config.desk_callback_uri = 'http://app.weava.io/desk/auth_redirect'
   config.desk_api_uri = 'https://weava.desk.com'
   config.desk_subdomain = 'weava'
   config.desk_support_email = 'support@weava.io'
