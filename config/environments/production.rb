@@ -83,8 +83,8 @@ Weava::Application.configure do
   #config.app_gid = 'apps'
 
   # Persona
-  config.persona_url = 'http://app.weava.io'
-  config.base_url = 'http://app.weava.io'
+  config.persona_url = 'http://test.weava.io'
+  config.base_url = 'http://test.weava.io'
 
   # git
   config.git_root_path = '/data/core-repos/'
