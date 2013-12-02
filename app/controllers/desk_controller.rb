@@ -59,11 +59,14 @@ class DeskController < ApplicationController
 
         # test = 1
 
-        job_id = DeskNewProjectWorker.perform_async(
-            session[:access_token], session[:access_token_secret],
-            @user.id)
+        # job_id = DeskNewProjectWorker.perform_async(
+        #     session[:access_token], session[:access_token_secret],
+        #     @user.id)
 
-        redirect_to route_sync(job_id)
+        work = DeskNewProjectWorker.new
+        work.perform(session[:access_token], session[:access_token_secret], @user.id)
+
+        redirect_to route_projects #route_sync(job_id)
     end
 
     def sync
@@ -111,6 +114,10 @@ class DeskController < ApplicationController
 
     def route_project_unauthorized
         "/403.html"
+    end
+
+    def route_projects
+        "/projects"
     end
 
 end
